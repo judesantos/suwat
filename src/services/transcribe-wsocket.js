@@ -1,3 +1,4 @@
+'use strict';
 
 import MicrophoneStream from "microphone-stream";
 import { EventStreamMarshaller } from "@aws-sdk/eventstream-marshaller";
@@ -10,12 +11,16 @@ import axios from "axios";
 //const backendUrl = "https://mm13k5qyif.execute-api.us-east-1.amazonaws.com/Prod/preSignedURL";
 const backendUrl = "http://localhost:3000/preSignedURL";
 
-let socket = null;
 const SAMPLE_RATE = 44100;
 //const SAMPLE_RATE = 16000;
 let inputSampleRate = undefined;
 let sampleRate = SAMPLE_RATE;
-let microphoneStream = undefined;
+
+let socketTabAudioStream = undefined;
+let socketDesktopMicStream = undefined;
+let tabAudioStream = undefined;
+let desktopMicStream = undefined;
+
 const eventStreamMarshaller = new EventStreamMarshaller(toUtf8, fromUtf8);
 
 const pcmEncode = (input) => {
@@ -29,30 +34,45 @@ const pcmEncode = (input) => {
   return buffer;
 };
 
-const createMicrophoneStream = async (streamId) => {
-  microphoneStream = new MicrophoneStream();
-  microphoneStream.on("format", (data) => {
+const createAudioStream = async (streamId = null) => {
+  
+  let audioStream = new MicrophoneStream();
+  audioStream.on("format", (data) => {
     inputSampleRate = data.sampleRate;
   });
   
-  const stream = await window.navigator.mediaDevices.getUserMedia({
-    video: false,
-    //audio: true,
-    audio: {
-      mandatory: {
-          chromeMediaSource: 'tab',
-          chromeMediaSourceId: streamId
-      }
-    }
-  })
+  let stream;
 
-  // Unmutes audio source
-  const context = new AudioContext();
-  const ctx_stream = context.createMediaStreamSource(stream);
-  ctx_stream.connect(context.destination);
+  if (streamId) {
+    // Tab stream
+    stream = await window.navigator.mediaDevices.getUserMedia({
+      video: false,
+      audio: true,
+      audio: {
+        mandatory: {
+            chromeMediaSource: 'tab',
+            chromeMediaSourceId: streamId
+        }
+      }
+    });
+
+    // Unmutes audio source
+    const context = new AudioContext();
+    const ctx_stream = context.createMediaStreamSource(stream);
+    ctx_stream.connect(context.destination);
+
+  } else {
+    // Desktop user microphone
+    stream = await window.navigator.mediaDevices.getUserMedia({
+      video: false,
+      audio: true,
+    });
+  }
 
   // set destination recorder
-  microphoneStream.setStream(stream);
+  audioStream.setStream(stream);
+
+  return audioStream;
 };
 
 const downsampleBuffer = (
@@ -121,58 +141,37 @@ const convertAudioToBinaryMessage = (audioChunk) => {
   return binary;
 };
 
-const startRecording = async (streamId, sendTranscriptionData) => {
+const startRecording = async (streamId, returnTranscriptionDataCB) => {
 
   try {
 
-    if (microphoneStream) {
+    if (tabAudioStream || desktopMicStream) {
       stopRecording();
     }
 
-    await createMicrophoneStream(streamId);
+    /*
+     * Create dual channel audio source
+     */
 
-    const { data } = await axios.get(backendUrl);
+    // Browser tab specific source - google meet, messenger for example.
+    tabAudioStream = await createAudioStream(streamId);
 
-    socket = new WebSocket(data.preSignedURL);
-    socket.binaryType = "arraybuffer";
+    await createSocketStreamer(
+      tabAudioStream,
+      (data) => {return socketTabAudioStream = new WebSocket(data.preSignedURL)}, 
+      returnTranscriptionDataCB,
+      `brw`
+    );
 
-    socket.onopen = () => {
-      console.log('socket open')
-      microphoneStream.on("data", (rawAudioChunk) => {
-        if (socket.readyState === socket.OPEN) {
-          const binary = convertAudioToBinaryMessage(rawAudioChunk);
-          socket.send(binary);
-        }
-      });
-    };
+    // System microphone - laptop participant(s)
+    desktopMicStream = await createAudioStream();
 
-    socket.onclose = (wa, e) => {
-      //callback({status: 499, message: 'Connection closed!', event: e})
-      console.log('Socket closed!');
-    };
-
-
-    socket.onmessage = (message) => {
-
-      let messageWrapper = eventStreamMarshaller.unmarshall(Buffer(message.data));
-      let messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
-
-      if (messageWrapper.headers[":message-type"].value === "event") {
-
-        let results = messageBody.Transcript?.Results;
-        if (results.length && !results[0]?.IsPartial) {
-
-          console.log({new_message: results[0]})
-          sendTranscriptionData(results[0].Alternatives[0]);
-
-        }
-
-      }
-    };
-
-    socket.onerror = (error) => {
-      console.error(error);
-    };
+    await createSocketStreamer(
+      desktopMicStream,
+      (data) => { return socketDesktopMicStream = new WebSocket(data.preSignedURL)},
+      returnTranscriptionDataCB,
+      `dsk`
+    );
 
   } catch (e) {
 
@@ -184,25 +183,104 @@ const startRecording = async (streamId, sendTranscriptionData) => {
 
 };
 
+const createSocketStreamer = async (
+  streamSource,
+  webSocketCreator,
+  returnTranscriptionDataCB,
+  label
+) => {
+  /*
+    * Setup websocket. Send partial streams from the audio sources.
+    */
+  const { data } = await axios.get(backendUrl);
+
+  let webSocket = webSocketCreator(data);
+  webSocket.binaryType = "arraybuffer";
+
+  webSocket.onopen = () => {
+    console.log('socket open')
+    streamSource.on("data", (rawAudioChunk) => {
+      if (webSocket.readyState === WebSocket.OPEN) {
+        const binary = convertAudioToBinaryMessage(rawAudioChunk);
+        webSocket.send(binary);
+      }
+    });
+  };
+
+  webSocket.onclose = (wa, e) => {
+    console.log('Socket closed!');
+  };
+
+  webSocket.onmessage = (message) => {
+    const tag = label;
+
+    let messageWrapper = eventStreamMarshaller.unmarshall(Buffer(message.data));
+    let messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
+
+    if (messageWrapper.headers[":message-type"].value === "event") {
+
+      let results = messageBody.Transcript?.Results;
+      if (results.length && !results[0].IsPartial) {
+
+        const result = results[0];
+        console.log({...result});
+        const data = {
+          tag,
+          resultId: result.ResultId,
+          channelId: result.ChannelId,
+          items: result.Alternatives[0].Items,
+          transcript: result.Alternatives[0].Transcript
+        };
+        returnTranscriptionDataCB(data);
+
+      }
+
+    }
+  };
+
+  webSocket.onerror = (error) => {
+    console.error(error);
+  };
+}
+
 const stopRecording = () => {
 
   try {
 
-    if (microphoneStream) {
+    if (tabAudioStream) {
 
-      microphoneStream.stop();
-      microphoneStream.destroy();
-      microphoneStream = undefined;
+      tabAudioStream.stop();
+      tabAudioStream.destroy();
+      tabAudioStream = undefined;
 
     }
 
-    if (socket) {
+    if (desktopMicStream) {
 
-      console.log('sending close transcribe event')
+      desktopMicStream.stop();
+      desktopMicStream.destroy();
+      desktopMicStream = undefined;
+
+    }
+
+    if (socketTabAudioStream) {
+
       // send empty audio frame to terminate transcription
-      socket.send([]);
-      socket.close();
-      socket = undefined;
+      console.log('sending close transcribe event for socketTabAudioStream')
+      socketTabAudioStream.send([]);
+
+      socketTabAudioStream.close();
+      socketTabAudioStream = undefined;
+    }
+
+    if (socketDesktopMicStream) {
+
+      // send empty audio frame to terminate transcription
+      console.log('sending close transcribe event for socketDesktopMicStream')
+      socketDesktopMicStream.send([]);
+
+      socketDesktopMicStream.close();
+      socketDesktopMicStream = undefined;
     }
 
   } catch(e) {

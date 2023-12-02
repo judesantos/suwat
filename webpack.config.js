@@ -170,6 +170,15 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
+          from: 'public/assets/img/icon-ctx.png',
+          to: path.join(__dirname, 'dist'),
+          force: true,
+        },
+      ],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
           from: 'public/assets/img/icon-128.png',
           to: path.join(__dirname, 'dist'),
           force: true,

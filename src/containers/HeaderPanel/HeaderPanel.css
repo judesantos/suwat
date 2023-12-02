@@ -1,0 +1,37 @@
+.HeaderPanel {
+  /*
+  height: 5%;
+  padding: 3%;
+  */
+  border: 1px solid rgb(223, 209, 209);
+  text-align: right;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.Button {
+  border-radius: 60px;
+  margin: 2%;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.ButtonRecord, .Button {
+  width: 25%;
+  height: 60%;
+  margin: 1%;
+}
+
+.ButtonMenu, .Button {
+  align-items: center;
+}
+
+.ButtonMenu:hover, .ButtonMenu:focus {
+  /*
+  background-color: #b4d4ea;
+  */
+}
+.ButtonMenu:hover, .ButtonMenu:in-range{
+  background-color: #5eb1e8;
+}

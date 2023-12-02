@@ -1,0 +1,38 @@
+.PopupMenu {
+  position: absolute;
+  max-width: 41%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  background-color: rgb(233, 229, 229);
+  top: 85%;
+  left: 55%;
+}
+
+.MenuItem {
+  display: inline-block;
+  vertical-align: top;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  flex: 1;
+  width: 78%;
+}
+
+.Checked {
+  height: inherit;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.checkIcon {
+  display: inline-block;
+}
+
+.MenuItemText {
+  width: 90%;
+  float: right;
+}
+
+.MenuItem:hover {
+  background-color: #ddd;
+}
