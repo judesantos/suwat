@@ -1,4 +1,4 @@
-import React, { Component, useContext } from 'react';
+import React, { Component } from 'react';
 import './HeaderPanel.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
@@ -10,35 +10,33 @@ class HeaderPanelComponent extends Component {
 
   static contextType = AppContext;
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      showPopup: false
-    };
-  }
-
-  togglePopupMenu = () => {
-    this.setState({showPopup: !this.state.showPopup})
+  onMenuEvent = (e) => {
+    if (e.type ==='mouseover' && !this.context.popupMenuItem) {
+      this.context.setPopupItem(!this.context.popupMenuItem);
+    }
   }
 
   render() {
-
-    const { toggleRecording, recordingState } = this.context.contextProvider;
 
     return (
       <div className="HeaderPanel">
         <button 
           className="ButtonRecord"
-          onClick={() => toggleRecording()}
+          onClick={this.context.toggleRecording}
         >
-         {recordingState} 
+        {this.context.recordingState} 
         </button>
-        <button className='ButtonMenu'>
-          <FontAwesomeIcon icon={faBars} onClick={this.togglePopupMenu}/>
-        </button>
-        {this.state.showPopup && 
-          <PopupMenuComponent/>
-        }
+        <div className='MenuDropDown'
+          onMouseOver={this.onMenuEvent}
+        >
+          <button className='ButtonDropDown'>
+            <FontAwesomeIcon icon={faBars}
+            />
+          </button>
+          {this.context.popupMenuItem && 
+            <PopupMenuComponent />
+          }
+        </div>
       </div>
     );
   }

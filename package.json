@@ -1,7 +1,7 @@
 {
-  "name": "scrib-o",
+  "name": "suwat",
   "version": "0.1.0",
-  "description": "scrib-o - The speech transcriber by yourtechy.com",
+  "description": "suwat - The speech transcriber by yourtechy.com",
   "repository": {
     "type": "git",
     "url": ""

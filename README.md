@@ -1,2 +1,2 @@
-# scrib-o
-scrib-o - The speech transcriber by yourtechy.com
+# suwat
+suwat - The speech transcriber by yourtechy.com

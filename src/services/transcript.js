@@ -1,6 +1,30 @@
-'use strict';
-
 let dialogue = []; // stack of conversation lines
+let speakerIds = new Map();
+
+const randomColor = () => {
+  return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+}
+
+/**
+ *  Return the short-id of a unique speaker in the dialogue.
+ * 
+ * @param string speaker - full length code of a unique speaker in a dialogue
+ * @returns {speakerId, color}
+ */
+const getSpeakerId = (speaker) => {
+
+  let speakerObj = undefined;
+
+  if (speakerIds.has(speaker)) {
+    speakerObj = speakerIds.get(speaker);
+  } else {
+    const speakerId = 'sp' + (speakerIds.size + 1).toString();
+    const color = randomColor();
+    speakerObj = {speakerId, color};
+    speakerIds.set(speaker, speakerObj);
+  }
+return speakerObj;
+}
 
 /**
  * Process conversation. 
@@ -10,7 +34,6 @@ let dialogue = []; // stack of conversation lines
  */
 const processJob = (data) => {
   
-  const id = data.resultId;
   let spkrPrefix = data.tag + '_' + data.channelId;
 
   let currSpeaker = undefined;
@@ -35,10 +58,14 @@ const processJob = (data) => {
       }
       // Setup next line with new speaker
       currSpeaker = speaker;
+      const spkObj = getSpeakerId(currSpeaker);
+
       line = {
-        id: id + item.StartTime,
+        id: data.resultId + item.StartTime,
+        speakerId: spkObj.speakerId,
+        color: spkObj.color,
+        speaker,
         startTime: item.StartTime,
-        speaker: currSpeaker,
         content: ''
       };
     }
@@ -74,12 +101,12 @@ const getTopItem = () => {
   return dialogue[dialogue.length-1];
 }
 
-//const getBottomItem = () => {
-//  return dialogue[dialogue.length-1];
-//}
-
 const length = () => {
   return dialogue.length;
+}
+
+const clear = () => {
+  dialogue = [];
 }
 
 export {
@@ -87,7 +114,7 @@ export {
   getDialogue,
   getDialogueRef,
   getTopItem,
-  //getBottomItem,
+  clear,
   length
 }
 

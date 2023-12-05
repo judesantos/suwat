@@ -1,9 +1,18 @@
+@-webkit-keyframes fadeIn {
+  from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 .HeaderPanel {
   /*
   height: 5%;
   padding: 3%;
   */
-  border: 1px solid rgb(223, 209, 209);
+  background-color: 1px solid rgb(188, 178, 178);
   text-align: right;
   position: relative;
   display: inline-block;
@@ -12,7 +21,6 @@
 
 .Button {
   border-radius: 60px;
-  margin: 2%;
   background-color: transparent;
   cursor: pointer;
 }
@@ -20,18 +28,31 @@
 .ButtonRecord, .Button {
   width: 25%;
   height: 60%;
+  margin: 1% 0.5%;
+}
+
+.MenuDropDown {
+  position: relative;
+  display: inline-block;
+}
+
+.MenuDropDown .PopupMenu {
+  display: block;
+  -webkit-animation: fadeIn 0.5s;
+  animation: fadeIn 0.5s;
+}
+
+.ButtonDropDown, .Button {
+  align-items: center;
   margin: 1%;
 }
 
-.ButtonMenu, .Button {
-  align-items: center;
+  /*
+.ButtonMenu:hover, .ButtonMenu:focus {
+  background-color: #b4d4ea;
 }
 
-.ButtonMenu:hover, .ButtonMenu:focus {
-  /*
-  background-color: #b4d4ea;
-  */
-}
 .ButtonMenu:hover, .ButtonMenu:in-range{
   background-color: #5eb1e8;
 }
+  */

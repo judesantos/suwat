@@ -79,9 +79,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.target === 'offscreen') {
 
-    console.log('offscreen message listener create!');
-
-    console.log({content_js: request})
+    console.log({offscreen: request})
 
     if (request.action === 'start-recording') {
 
@@ -96,8 +94,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       record_stop(sendResponse);
 
       return true;
-    }
 
+    } else if (request.action === 'logout') {
+
+      setTimeout(() => {
+        const msg = '\n\nYou have closed suwat.\n\nDiscard current job and Logout?\n\n';
+        if (window.confirm(msg)) {
+
+          record_stop(sendResponse);
+        }
+
+      }, 100);
+
+      return true;
+
+    } else if (request.action === 'tab-exists') {
+
+      setTimeout(() => {
+        const msg = '\n\nMultiple sessions detected.\n\nClose the other session and try again.\n\n';
+        alert(msg);
+      }, 100);
+
+    } 
   } 
 
 });

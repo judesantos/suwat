@@ -3,7 +3,6 @@ body {
 }
 
 .App {
-  display: block;
   position: fixed;
   top: 0px;
   bottom: 0px;
@@ -12,17 +11,6 @@ body {
   height: 100%;
   padding: 10px;
   align-items: center;
-}
-
-.Transcription {
-  padding: 15px;
-  margin-top: 15px;
-  overflow-y: scroll;
-  scroll-behavior: auto;
-  height: 85%;
-  bottom: 5%;
-  border-left: 0.5px solid rgb(108, 104, 104);
-  border-top: 0.5px solid rgba(223, 211, 211, 0.516);
 }
 
 .App-logo {
@@ -57,4 +45,40 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+.Transcription {
+  overflow-y: scroll;
+  scroll-behavior: auto;
+  height: 87%;
+  bottom: 5px;
+  /*
+  border-left: 0.5px solid rgba(223, 211, 211, 0.516);
+  */
+  border-top: 0.5px solid rgba(223, 211, 211, 0.516);
+}
+
+.SpeakerLines {
+  bottom: 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.SpeakerLines td, .SpeakerLines th {
+  padding: 8px;
+  height: 2%;
+}
+
+.SpeakerLines tr:nth-child(even){background-color: #f2f2f2;}
+.SpeakerLines tr:hover {background-color: #ddd;}
+
+.SpeakerId {
+  font-weight:700;
+  width: 10%;
+  border-right: 1px solid #f2f2f2;
+  vertical-align: text-top;
+}
+
+.SpeakerStatement {
+  color: rgb(74, 73, 73);
 }

@@ -1,5 +1,3 @@
-'use strict';
-
 import MicrophoneStream from "microphone-stream";
 import { EventStreamMarshaller } from "@aws-sdk/eventstream-marshaller";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
@@ -239,6 +237,7 @@ const createSocketStreamer = async (
   };
 
   webSocket.onerror = (error) => {
+    console.error('websocket onError event.')
     console.error(error);
   };
 }

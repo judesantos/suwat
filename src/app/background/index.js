@@ -1,6 +1,8 @@
 import * as transcript from '../../services/transcript.js'
 
-let tunnelPort = undefined;
+let transcribePort = undefined;
+let sidepanelPort = undefined;
+let tabId = undefined;
 
 chrome.runtime.onInstalled.addListener(async () => {
 
@@ -30,21 +32,172 @@ chrome.runtime.onInstalled.addListener(async () => {
       justification: 'Recording from chrome.tabCapture API'
     });
   }
-  
+
   chrome.action.onClicked.addListener(async (tab) => {
 
-    console.log('open side panel')
+    console.log('sidpanel event clicked: ' + tabId);
+    if (tabId) {
+      if (tab.id === tabId)
+        return; // same tab. Ignore
+      // Only 1 sidepanel can be open at a time.
+      // Send message to offscreen and warn user.
 
-    chrome.sidePanel.open({ tabId: tab.id });
+      chrome.runtime.sendMessage({
+        action: 'tab-exists',
+        target: 'offscreen',
+      });
+
+      return;
+    }
+
+    tabId = tab.id;
+    console.log('open side panel for tab: ' + tabId);
+
     chrome.sidePanel.setOptions({
       tabId: tab.id,
       path: 'sidepanel.html',
       enabled: true
     });
+    chrome.sidePanel.open({ tabId: tab.id });
 
   });
 
 });
+
+chrome.runtime.onStartup.addListener(() => {
+  console.log('runtime onStartup')
+})
+
+chrome.runtime.onSuspend.addListener(() => {
+  console.log('runtime onSuspend')
+})
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+
+  // Popup conduit - listen for popup commands.
+  if (request.target === 'background') {
+
+    if (request.action === 'record-action') {
+
+      console.log('background message listener: record-action!');
+      record_action(request, sendResponse);
+
+      return true; // tell popup that we will be sending command status response soon.
+
+    }
+
+  }
+})
+
+chrome.runtime.onConnect.addListener(port => {
+
+  if (port.name === 'sidepanel') {
+
+    if (sidepanelPort) {
+      // Do not duplicate disconnect handler
+      return;
+    }
+
+    sidepanelPort = port;
+    // message listener
+    //
+    sidepanelPort.onMessage.addListener(async (msg) => {
+
+      if (msg.action === 'sign-in') {
+
+        console.log('calling google auth...')
+
+        try {
+          /**
+           * see: https://gist.github.com/raineorshine/970b60902c9e6e04f71d
+           */
+          chrome.identity.getAuthToken({interactive: true},  (token) => {
+
+            if (token) {
+
+              console.log('google auth. token: ' + token)
+
+              sidepanelPort.postMessage({
+                action: 'sign-in',
+                status: 'success',
+                token: token
+              })
+
+            } else {
+              
+              console.error('login failed: ' + chrome.runtime.lastError.message);
+
+              sidepanelPort.postMessage({
+                action: 'sign-in',
+                status: 'error',
+                msg: chrome.runtime.lastError.message
+              })
+              
+            }
+          });
+
+        } catch (e) {
+
+          sidepanelPort.postMessage({
+            action: 'sign-in',
+            status: 'error',
+            msg: e
+          });
+
+        }
+
+      } else if (msg.action === 'sign-out') {
+
+        const token = await signOut();
+
+        if (token) {
+
+          console.log('logout success');
+
+          sidepanelPort.postMessage({
+            action: 'sign-out',
+            status: 'success',
+            token
+          });
+
+        } else {
+
+          console.log('logout failed: ' + chrome.runtime.lastError.message);
+
+          sidepanelPort.postMessage({
+            action: 'sign-out',
+            status: 'error',
+            msg: chrome.runtime.lastError.message 
+          });
+        }
+      }
+    });
+
+    // disconnection listener
+    //
+    sidepanelPort.onDisconnect.addListener(() => {
+
+      // Remove previously stored tabId and this tunnel
+      tabId = undefined;
+      sidepanelPort = undefined;
+
+      // Send message to offscreen to stop ongoing transcription.
+      chrome.runtime.sendMessage({
+        action: 'logout',
+        target: 'offscreen',
+      });
+
+      signOut();
+
+    });
+
+  }
+});
+
+const signOut = async () => {
+  const url = {'url': 'https://accounts.google.com/logout'};
+  return await chrome.identity.launchWebAuthFlow(url);
+}
 
 const record_action = async (request, callback) => {
 
@@ -107,41 +260,31 @@ const record_action = async (request, callback) => {
  */
 const recvTranscriptionEvents = async () => {
 
-  if (tunnelPort) {
-    tunnelPort.disconnect();
-    tunnelPort = undefined;
+  if (transcribePort) {
+    transcribePort.disconnect();
+    transcribePort = undefined;
   }
 
   // Establish connection to offscreen 'transcribe' data source.
   chrome.runtime.onConnect.addListener(port => {
 
-  // Ignore non 'transcribe' connections
+    // Ignore non 'transcribe' connections
+    
     if (port.name !== 'transcribe')
       return false;
     // Only 1 onMessage callback at a time.
-    if (tunnelPort)
+    if (transcribePort)
       return false;
 
-    tunnelPort = port;
-
-    //// Send previous
-    //chrome.storage.sync.get('dialogue', o => {
-    //  if (o?.dialogue) {
-    //    chrome.runtime.sendMessage({
-    //      action: 'transcription',
-    //      target: 'sidepanel',
-    //      data: o.dialogue
-    //    });
-    //  }
-    //});
+    transcribePort = port;
 
     // Create 'transcribe' event callback.
-    tunnelPort.onMessage.addListener(msg => {
+    transcribePort.onMessage.addListener(msg => {
 
       if (msg.status === 'ready') {
 
         // Tell data source we are ready to receive events.
-        tunnelPort.postMessage({status: 'ready'})
+        transcribePort.postMessage({status: 'ready'})
 
       } else if (msg.status === 'transcription') {
         // Format, separate speakers by line.
@@ -157,8 +300,8 @@ const recvTranscriptionEvents = async () => {
 
       } else if (msg.status === 'disconnect') {
 
-        tunnelPort.disconnect();
-        tunnelPort = undefined;
+        transcribePort.disconnect();
+        transcribePort = undefined;
 
       } else {
 
@@ -169,22 +312,5 @@ const recvTranscriptionEvents = async () => {
   })
 
 }
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-
-  // Popup conduit - listen for popup commands.
-  if (request.target === 'background') {
-
-    if (request.action === 'record-action') {
-
-      console.log('background message listener: record-action!');
-      record_action(request, sendResponse);
-
-      return true; // tell popup that we will be sending command status response soon.
-
-    }
-
-  }
-})
 
 export {}

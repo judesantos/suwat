@@ -1,56 +1,90 @@
 import React, { Component } from 'react';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faFloppyDisk, faPencilAlt, faTrashCan, faWrench } from '@fortawesome/free-solid-svg-icons';
+
 import './PopupMenu.css'
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
+
+import AppContext from '../../services/AppContext';
 
 class PopupMenuComponent extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedItem: 0
-    };
-  }
-
-  setSelectedMenuItem = (item) => {
-    this.setState({selectedItem: item})
-  }
+  static contextType = AppContext
 
   render() {
+
     return (
+
       <div className="PopupMenu">
-        <div className='MenuItem' onClick={() => this.setSelectedMenuItem(1)}>
+        <div className='MenuItem' 
+          onClick={() => {
+            this.context.setSelectedMenuItem(1)
+            this.context.setPopupItem(!this.context.popupMenuItem)
+          }}
+          disabled={this.context.recording}
+        >
           <div className='Checked'>
-            {this.state.selectedItem === 1 &&
+            {this.context.selectedMenuItem === 1 &&
               <FontAwesomeIcon icon={faCheck} className='checkIcon'/>
             }
           </div>
           <div className='MenuItemText'>
-            Menu item 1
+            Edit
+            <FontAwesomeIcon icon={faPencilAlt} className='Icon'/>
           </div>
         </div>
-        <div className='MenuItem' onClick={() => this.setSelectedMenuItem(2)}>
+        <div className='MenuItem' 
+          onClick={() => {
+            this.context.setSelectedMenuItem(2)
+            this.context.setPopupItem(!this.context.popupMenuItem)
+          }}
+          disabled={this.context.recording}
+        >
           <div className='Checked'>
-            {this.state.selectedItem === 2 &&
+            {this.context.selectedMenuItem === 2 &&
               <FontAwesomeIcon icon={faCheck} className='checkIcon'/>
             }
           </div>
           <div className='MenuItemText'>
-            Menu item 2
+            Save
+            <FontAwesomeIcon icon={faFloppyDisk} className='Icon' />
           </div>
         </div>
-        <div className='MenuItem' onClick={() => this.setSelectedMenuItem(3)}>
+        <div className='MenuItem'
+          onClick={() => {
+            this.context.setSelectedMenuItem(3)
+            this.context.setPopupItem(!this.context.popupMenuItem)
+          }}
+          disabled={this.context.recording}
+        >
           <div className='Checked'>
-            {this.state.selectedItem === 3 &&
+            {this.context.selectedMenuItem === 3 &&
               <FontAwesomeIcon icon={faCheck} className='checkIcon'/>
             }
           </div>
           <div className='MenuItemText'>
-            Menu item 3
+            Delete
+            <FontAwesomeIcon icon={faTrashCan} className='Icon' />
+          </div>
+        </div>
+        <div className='MenuItem'
+          onClick={() => {
+            this.context.setSelectedMenuItem(4)
+            this.context.setPopupItem(!this.context.popupMenuItem)
+          }}
+        >
+          <div className='Checked'>
+            {this.context.selectedMenuItem === 4 &&
+              <FontAwesomeIcon icon={faCheck} className='checkIcon'/>
+            }
+          </div>
+          <div className='MenuItemText'>
+            Settings
+            <FontAwesomeIcon icon={faWrench} className='Icon' />
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
 
