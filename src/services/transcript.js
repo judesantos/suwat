@@ -61,7 +61,8 @@ const processJob = (data) => {
       const spkObj = getSpeakerId(currSpeaker);
 
       line = {
-        id: data.resultId + item.StartTime,
+        id: data.timestamp + item.StartTime,
+        timestamp: data.timestamp,
         speakerId: spkObj.speakerId,
         color: spkObj.color,
         speaker,

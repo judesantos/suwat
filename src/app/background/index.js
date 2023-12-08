@@ -150,7 +150,7 @@ chrome.runtime.onConnect.addListener(port => {
 
         const token = await signOut();
 
-        if (token) {
+        //if (token) {
 
           console.log('logout success');
 
@@ -160,22 +160,22 @@ chrome.runtime.onConnect.addListener(port => {
             token
           });
 
-        } else {
+        //} else {
 
-          console.log('logout failed: ' + chrome.runtime.lastError.message);
+        //  console.log('logout failed: ' + chrome.runtime.lastError.message);
 
-          sidepanelPort.postMessage({
-            action: 'sign-out',
-            status: 'error',
-            msg: chrome.runtime.lastError.message 
-          });
-        }
+        //  sidepanelPort.postMessage({
+        //    action: 'sign-out',
+        //    status: 'error',
+        //    msg: chrome.runtime.lastError.message 
+        //  });
+        //}
       }
     });
 
     // disconnection listener
     //
-    sidepanelPort.onDisconnect.addListener(() => {
+    sidepanelPort.onDisconnect.addListener( async() => {
 
       // Remove previously stored tabId and this tunnel
       tabId = undefined;
@@ -187,16 +187,36 @@ chrome.runtime.onConnect.addListener(port => {
         target: 'offscreen',
       });
 
-      signOut();
+      try {
 
+        signOut();
+        //if (!result) {
+        //  console.log({logout_error: chrome.runtime.lastError.message})
+        //}
+
+      } catch (e) {
+
+        console.log('Sign-out exception!')
+        console.error(chrome.runtime?.lastError);
+
+      }
     });
 
   }
 });
 
 const signOut = async () => {
-  const url = {'url': 'https://accounts.google.com/logout'};
-  return await chrome.identity.launchWebAuthFlow(url);
+
+  
+  return chrome.identity.clearAllCachedAuthTokens()
+  //const config = {
+  //  url: 'https://accounts.google.com/logout',
+  //  abortOnLoadForNonInteractive: true,
+  //  timeoutMsForNonInteractive: 0,
+  //  interactive: false
+  //};
+
+  //return chrome.identity.launchWebAuthFlow(config);
 }
 
 const record_action = async (request, callback) => {
@@ -296,7 +316,7 @@ const recvTranscriptionEvents = async () => {
           data: lines
         });
         // Save updates
-        chrome.storage.sync.set({dialogue: transcript.getDialogue()});
+        chrome.storage.local.set({dialogue: transcript.getDialogue()});
 
       } else if (msg.status === 'disconnect') {
 

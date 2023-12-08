@@ -23,7 +23,7 @@ class AppCtxProvider extends Component {
     chrome.tabs.query({active: true, currentWindow: true}, tabs => {
 
       const tabId = tabs[0].id
-      chrome.storage.sync.get({tabId, recordState: ''}, o => {
+      chrome.storage.local.get({tabId, recordState: ''}, o => {
 
         console.log('get tabId: ' + o.tabId + ', currentTabId: ' + tabId + ', argTabId: ' + tabs[0].id)
         if (o.recordState.length) {
@@ -36,7 +36,7 @@ class AppCtxProvider extends Component {
           // Save current state. 
           // Popup may go out of scope but will retain state when viewed later.
           console.log('set tabId: ' + tabId)
-          chrome.storage.sync.set({tabId, recordState: this.state.recordingState});
+          chrome.storage.local.set({tabId, recordState: this.state.recordingState});
         }
 
       });
@@ -49,8 +49,9 @@ class AppCtxProvider extends Component {
 
       if (request.target === 'sidepanel') {
 
-        chrome.storage.sync.get('dialogue', o => {
+        chrome.storage.local.get('dialogue', o => {
           if (o?.dialogue) {
+            console.log({new_dialog: o.dialogue});
             this.setState(state => state.lines = o.dialogue);
           }
         });
@@ -89,7 +90,7 @@ class AppCtxProvider extends Component {
           window.confirm('Delete current job?')
         ) {
           // clear from db
-          chrome.storage.sync.remove('dialogue')
+          chrome.storage.local.remove('dialogue')
           // clear storage model
           transcript.clear();
           // clear local cache
@@ -127,7 +128,7 @@ class AppCtxProvider extends Component {
       }
 
       this.updateState('recordingState',  state);
-      chrome.storage.sync.set({recordState: state});
+      chrome.storage.local.set({recordState: state});
     }
   }
   

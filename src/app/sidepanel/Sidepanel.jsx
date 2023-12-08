@@ -35,6 +35,10 @@ const Sidepanel = () => {
             // Hide login form and go to main screen.
             setLoggedIn(true);
 
+            setTimeout(() => {
+              alert('Welcome to suwat!')
+            }, 500);
+
           } else {
             
             console.error('Login failed! ' + msg.msg);
