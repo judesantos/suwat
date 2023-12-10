@@ -45,7 +45,6 @@ const createAudioStream = async (streamId = null) => {
     // Tab stream
     stream = await window.navigator.mediaDevices.getUserMedia({
       video: false,
-      audio: true,
       audio: {
         mandatory: {
             chromeMediaSource: 'tab',
@@ -139,48 +138,6 @@ const convertAudioToBinaryMessage = (audioChunk) => {
   return binary;
 };
 
-const startRecording = async (streamId, returnTranscriptionDataCB) => {
-
-  try {
-
-    if (tabAudioStream || desktopMicStream) {
-      stopRecording();
-    }
-
-    /*
-     * Create dual channel audio source
-     */
-
-    // Browser tab specific source - google meet, messenger for example.
-    tabAudioStream = await createAudioStream(streamId);
-
-    await createSocketStreamer(
-      tabAudioStream,
-      (data) => {return socketTabAudioStream = new WebSocket(data.preSignedURL)}, 
-      returnTranscriptionDataCB,
-      `brw`
-    );
-
-    // System microphone - laptop participant(s)
-    desktopMicStream = await createAudioStream();
-
-    await createSocketStreamer(
-      desktopMicStream,
-      (data) => { return socketDesktopMicStream = new WebSocket(data.preSignedURL)},
-      returnTranscriptionDataCB,
-      `dsk`
-    );
-
-  } catch (e) {
-
-    console.log(e)
-    return false;
-  }
-
-  return true;
-
-};
-
 const createSocketStreamer = async (
   streamSource,
   webSocketCreator,
@@ -222,13 +179,16 @@ const createSocketStreamer = async (
 
         const result = results[0];
         console.log({...result});
+
         const data = {
           tag,
+          timestamp: Date.now(),
           resultId: result.ResultId,
           channelId: result.ChannelId,
           items: result.Alternatives[0].Items,
           transcript: result.Alternatives[0].Transcript
         };
+        console.log({onMessage: data})
         returnTranscriptionDataCB(data);
 
       }
@@ -242,6 +202,74 @@ const createSocketStreamer = async (
   };
 }
 
+/**
+ * 
+ * @param {*} streamId 
+ * @param {*} returnTranscriptionDataCB 
+ * @returns 
+ */
+const startRecording = async (streamId, returnTranscriptionDataCB) => {
+
+  if (tabAudioStream || desktopMicStream) {
+    stopRecording();
+  }
+
+  try {
+
+    /*
+     * Create dual channel audio source
+     */
+
+    // Browser tab specific source - google meet, messenger for example.
+    tabAudioStream = await createAudioStream(streamId);
+
+    console.log('creating background stream')
+
+    await createSocketStreamer(
+      tabAudioStream,
+      (data) => {return socketTabAudioStream = new WebSocket(data.preSignedURL)}, 
+      returnTranscriptionDataCB,
+      `brw`
+    );
+    console.log('created background stream')
+
+  } catch (e) {
+
+    console.log('startRecording create background stream exception:')
+    console.error(e)
+    return false;
+  }
+
+  try {
+    // System microphone - laptop participant(s)
+    desktopMicStream = await createAudioStream();
+
+    console.log('creating foreground stream')
+
+    await createSocketStreamer(
+      desktopMicStream,
+      (data) => { return socketDesktopMicStream = new WebSocket(data.preSignedURL)},
+      returnTranscriptionDataCB,
+      `dsk`
+    );
+
+    console.log('created foreground stream')
+
+  } catch (e) {
+
+    console.log('startRecording create foreground stream exception:')
+    console.error(e)
+    return false;
+  }
+
+  return true;
+
+};
+
+/**
+ * 
+ * @returns 
+ */
 const stopRecording = () => {
 
   try {
@@ -284,6 +312,7 @@ const stopRecording = () => {
 
   } catch(e) {
 
+    console.log('stopRecording exception:')
     console.error(e);
     return false;
 

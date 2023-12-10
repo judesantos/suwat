@@ -47,18 +47,20 @@ class TranscribeComponent extends Component {
             >
               <table className='SpeakerLines'>
                 <tbody>
-                {context.lines.length > 0 && 
+                {context.lines.length > 0 && (
                   context.lines.map(line => (
-                    <tr key={line?.timestamp} className='SpeakerLine'>
+                    <tr key={line?.id} className='SpeakerLine'>
                       <td className='SpeakerId' style={{color:line.color}}>
                         {line?.speakerId}
                       </td>
                       <td className='SpeakerStatement'>
-                        {line?.content}
+                      {line?.content?.split('\n')?.map((para, idx) => (
+                        para.length ? <p>{para}</p> : <></>
+                      ))}
                       </td>
                     </tr>
                   ))
-                }
+                )}
                 </tbody>
               </table>
             </div>
