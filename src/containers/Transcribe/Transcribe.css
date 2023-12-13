@@ -13,31 +13,127 @@ body {
   bottom: 5px;
   /*
   border-left: 0.5px solid rgba(223, 211, 211, 0.516);
-  */
   border-top: 0.5px solid rgba(223, 211, 211, 0.516);
+  */
 }
 
 .SpeakerLines {
+  /*
   bottom: 0;
   width: 100%;
+  */
   border-collapse: collapse;
+  /**/
+  width: calc(100%);
+  padding-bottom: 5px;
+  
+  background-color: #f3f3f4;
 }
 
-.SpeakerLines td, .SpeakerLines th {
+.SpeakerLines td {
+  /*
   padding: 8px;
+  */
   height: 2%;
 }
 
+/*
 .SpeakerLines tr:nth-child(even){background-color: #f2f2f2;}
 .SpeakerLines tr:hover {background-color: #ddd;}
+*/
 
 .SpeakerId {
-  font-weight:700;
+  font-size: 12pt;
+  font-weight:800;
+  /*
   width: 10%;
   border-right: 1px solid #f2f2f2;
-  vertical-align: text-top;
+  */
+  margin-bottom: 8px;
+}
+
+.SpeakerLine .SpeakerStatement {
+  padding-bottom: 0;
 }
 
 .SpeakerStatement {
   color: rgb(74, 73, 73);
+  width: auto;
+}
+
+.SpeakerStatement .time {
+  font-size: 10pt;
+  font-weight: 400;
+  margin: 0 0 5px 0;
+  float: right;
+}
+
+.Bubble {
+  font-size: 13pt;
+  font-weight: 500;
+  padding: 10px 15px 5px 15px;
+  position: relative;
+  /*
+  display: block;
+  vertical-align: top;
+  */
+  clear: both;
+  border: 0.5px solid rgb(177, 176, 176);
+}
+
+.Bubble::before {
+  content: " ";
+  display: block;
+  height: 15px;
+  position: absolute;
+  width: 15px;
+  /*
+  -moz-transform: rotate(25deg) skew(-35deg);
+  -ms-transform: rotate(25deg) skew(-35deg);
+  -o-transform: rotate(25deg) skew(-35deg);
+  -webkit-transform: rotate(30deg) skew(-35deg);
+  transform: rotate(25deg) skew(-35deg);
+  */
+  width: 18px;
+}
+
+.Bubble-background {
+  background-color: #ffffff;
+  border-radius: 0 40px 20px 20px;
+  float: left;
+  margin: 5px 17px;
+}
+
+.Bubble-background::before {
+  background-color: #ffffff;
+    left: -4px;
+    top: -1px;
+    transform: rotate(45deg) skew(-45deg) translate(-1px, 0);
+    border-left: 0.5px solid rgb(177, 176, 176);
+    border-bottom: 0.5px solid rgb(177, 176, 176);
+}
+
+.Bubble-foreground {
+  background-color: #EEFFDD;
+  border-radius: 40px 0px 20px 20px;
+  float: right;
+  margin: 5px 17px;
+}
+
+.Bubble-foreground .SpeakerId {
+  text-align: right;
+}
+
+.Bubble-foreground::before {
+  background-color: #EEFFDD;
+  right: -4.5px;
+  top: -0.5px;
+  transform: rotate(0deg) skew(-45deg) translate(4px, 0);
+  border-right: 0.5px solid rgb(177, 176, 176);
+  border-top: 0.5px solid rgb(177, 176, 176);
+}
+
+.SpeakerStatement p {
+  margin-top: 0;
+  margin-bottom: 0.5em;
 }

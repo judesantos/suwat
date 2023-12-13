@@ -35,6 +35,25 @@ chrome.runtime.onInstalled.addListener(async () => {
 
   chrome.action.onClicked.addListener(async (tab) => {
 
+    //navigator.permissions.query({name: 'microphone'})
+    //.then((permissionObj) => {
+    //  console.log('permission: ' + permissionObj.state);
+      chrome.permissions.request({
+        permissions: ['tabs'],
+        origins: ['<all_urls>']
+      }, (granted) => {
+        // The callback argument will be true if the user granted the permissions.
+        if (granted) {
+          console.log('permission granted')
+        } else {
+          console.log('permission denied')
+        }
+      });
+    //})
+    //.catch((error) => {
+    //  console.error('Got error :', error);
+    //})
+
     console.log('sidpanel event clicked: ' + tabId);
     if (tabId) {
       if (tab.id === tabId)

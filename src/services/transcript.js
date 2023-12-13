@@ -1,6 +1,8 @@
 let dialogue = []; // stack of conversation lines
 let speakerIds = new Map();
 
+let currSpeaker = undefined;
+
 const randomColor = () => {
   return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
 }
@@ -36,7 +38,6 @@ const processJob = (data) => {
   
   let spkrPrefix = data.tag + '_' + data.channelId;
 
-  let currSpeaker = undefined;
   let line = undefined;
   let lines = [];
 
@@ -49,7 +50,7 @@ const processJob = (data) => {
 
     const speaker = spkrPrefix + '_' + item.Speaker;
 
-    if (currSpeaker !== speaker) {
+    if (undefined === currSpeaker || currSpeaker !== speaker) {
       // Current line is done
       if (line) {
         // push to stack
@@ -61,6 +62,7 @@ const processJob = (data) => {
       const spkObj = getSpeakerId(currSpeaker);
 
       line = {
+        tag: data.tag,
         id: data.timestamp + item.StartTime,
         timestamp: data.timestamp,
         speakerId: spkObj.speakerId,
@@ -69,6 +71,14 @@ const processJob = (data) => {
         startTime: item.StartTime,
         content: ''
       };
+
+    } else {
+      // Same speaker as the last dialog line.
+      // Get the last line from the cache and append content.
+      if (!line && dialogue.length) {
+        line = dialogue.pop();
+        line.content += '\n\n'; // new paragraph
+      }
     }
 
     line.content += (line.content.length ? ' ' : '') + item.Content;

@@ -47,18 +47,39 @@ class TranscribeComponent extends Component {
             >
               <table className='SpeakerLines'>
                 <tbody>
-                {context.lines.length > 0 && 
+                {context.lines.length > 0 && (
                   context.lines.map(line => (
-                    <tr key={line?.timestamp} className='SpeakerLine'>
-                      <td className='SpeakerId' style={{color:line.color}}>
-                        {line?.speakerId}
-                      </td>
-                      <td className='SpeakerStatement'>
-                        {line?.content}
-                      </td>
+                    <tr key={line?.id} className='SpeakerLine'>
+                      {line.tag === 'brw' &&
+                        <>
+                        <td className='Bubble Bubble-background SpeakerStatement'>
+                          <div className='SpeakerId' style={{color:line.color}}>
+                            {line?.speakerId}
+                          </div>
+                          {line?.content?.split('\n')?.map((para, idx) => (
+                            para.length ? <p>{para}</p> : <></>
+                          ))}
+                          <div class="time">{(new Date(line.timestamp)).toLocaleTimeString()}</div>
+                        </td>
+                        </>
+                      }
+                      {line.tag === 'dsk' &&
+                        <>
+                          <td className='Bubble Bubble-foreground SpeakerStatement'>
+                            <div className='SpeakerId' style={{color:line.color}}>
+                              {line?.speakerId}
+                            </div>
+                            {line?.content?.split('\n')?.map((para, idx) => (
+                              para.length ? <p>{para}</p> : <></>
+                            ))}
+                            <div className="time">{(new Date(line.timestamp)).toLocaleTimeString()}</div>
+                          </td>
+                        </>
+
+                      }
                     </tr>
                   ))
-                }
+                )}
                 </tbody>
               </table>
             </div>
