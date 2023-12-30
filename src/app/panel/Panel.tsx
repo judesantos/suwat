@@ -7,6 +7,6 @@ function Panel() {
       <h1>Dev Tools Panel</h1>
     </div>
   );
-};
+}
 
 export default Panel;

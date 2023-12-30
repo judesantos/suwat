@@ -26,7 +26,7 @@ body {
   /**/
   width: calc(100%);
   padding-bottom: 5px;
-  
+
   background-color: #f3f3f4;
 }
 
@@ -44,7 +44,7 @@ body {
 
 .SpeakerId {
   font-size: 12pt;
-  font-weight:800;
+  font-weight: 800;
   /*
   width: 10%;
   border-right: 1px solid #f2f2f2;
@@ -82,7 +82,7 @@ body {
 }
 
 .Bubble::before {
-  content: " ";
+  content: ' ';
   display: block;
   height: 15px;
   position: absolute;
@@ -106,15 +106,15 @@ body {
 
 .Bubble-background::before {
   background-color: #ffffff;
-    left: -4px;
-    top: -1px;
-    transform: rotate(45deg) skew(-45deg) translate(-1px, 0);
-    border-left: 0.5px solid rgb(177, 176, 176);
-    border-bottom: 0.5px solid rgb(177, 176, 176);
+  left: -4px;
+  top: -1px;
+  transform: rotate(45deg) skew(-45deg) translate(-1px, 0);
+  border-left: 0.5px solid rgb(177, 176, 176);
+  border-bottom: 0.5px solid rgb(177, 176, 176);
 }
 
 .Bubble-foreground {
-  background-color: #EEFFDD;
+  background-color: #eeffdd;
   border-radius: 40px 0px 20px 20px;
   float: right;
   margin: 5px 17px;
@@ -125,7 +125,7 @@ body {
 }
 
 .Bubble-foreground::before {
-  background-color: #EEFFDD;
+  background-color: #eeffdd;
   right: -4.5px;
   top: -0.5px;
   transform: rotate(0deg) skew(-45deg) translate(4px, 0);

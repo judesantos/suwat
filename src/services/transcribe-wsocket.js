@@ -1,13 +1,13 @@
-import MicrophoneStream from "microphone-stream";
-import { EventStreamMarshaller } from "@aws-sdk/eventstream-marshaller";
-import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
+import MicrophoneStream from 'microphone-stream';
+import { EventStreamMarshaller } from '@aws-sdk/eventstream-marshaller';
+import { fromUtf8, toUtf8 } from '@aws-sdk/util-utf8-node';
 
-import axios from "axios";
+import axios from 'axios';
 
 // UPDATE THIS ACCORDING TO YOUR BACKEND:
 //const backendUrl = "http://localhost:8080/aws-signature";
-//const backendUrl = "https://mm13k5qyif.execute-api.us-east-1.amazonaws.com/Prod/preSignedURL";
-const backendUrl = "http://localhost:3000/preSignedURL";
+//const backendUrl = "https://m9ozmudw1d.execute-api.us-east-1.amazonaws.com/Prod/preSignedURL/";
+const backendUrl = 'http://localhost:3000/preSignedURL';
 
 const SAMPLE_RATE = 44100;
 //const SAMPLE_RATE = 16000;
@@ -33,12 +33,11 @@ const pcmEncode = (input) => {
 };
 
 const createAudioStream = async (streamId = null) => {
-  
   let audioStream = new MicrophoneStream();
-  audioStream.on("format", (data) => {
+  audioStream.on('format', (data) => {
     inputSampleRate = data.sampleRate;
   });
-  
+
   let stream;
 
   if (streamId) {
@@ -47,17 +46,16 @@ const createAudioStream = async (streamId = null) => {
       video: false,
       audio: {
         mandatory: {
-            chromeMediaSource: 'tab',
-            chromeMediaSourceId: streamId
-        }
-      }
+          chromeMediaSource: 'tab',
+          chromeMediaSourceId: streamId,
+        },
+      },
     });
 
     // Unmutes audio source
     const context = new AudioContext();
     const ctx_stream = context.createMediaStreamSource(stream);
     ctx_stream.connect(context.destination);
-
   } else {
     // Desktop user microphone
     stream = await window.navigator.mediaDevices.getUserMedia({
@@ -76,7 +74,7 @@ const downsampleBuffer = (
   buffer,
   inputSampleRate = SAMPLE_RATE,
   //outputSampleRate = 16000
-  outputSampleRate = 44100 
+  outputSampleRate = 44100
 ) => {
   if (outputSampleRate === inputSampleRate) {
     return buffer;
@@ -110,13 +108,13 @@ const downsampleBuffer = (
 const getAudioEventMessage = (buffer) => {
   return {
     headers: {
-      ":message-type": {
-        type: "string",
-        value: "event",
+      ':message-type': {
+        type: 'string',
+        value: 'event',
       },
-      ":event-type": {
-        type: "string",
-        value: "AudioEvent",
+      ':event-type': {
+        type: 'string',
+        value: 'AudioEvent',
       },
     },
     body: buffer,
@@ -145,16 +143,16 @@ const createSocketStreamer = async (
   label
 ) => {
   /*
-    * Setup websocket. Send partial streams from the audio sources.
-    */
+   * Setup websocket. Send partial streams from the audio sources.
+   */
   const { data } = await axios.get(backendUrl);
 
   let webSocket = webSocketCreator(data);
-  webSocket.binaryType = "arraybuffer";
+  webSocket.binaryType = 'arraybuffer';
 
   webSocket.onopen = () => {
-    console.log('socket open')
-    streamSource.on("data", (rawAudioChunk) => {
+    console.log('socket open');
+    streamSource.on('data', (rawAudioChunk) => {
       if (webSocket.readyState === WebSocket.OPEN) {
         const binary = convertAudioToBinaryMessage(rawAudioChunk);
         webSocket.send(binary);
@@ -170,15 +168,15 @@ const createSocketStreamer = async (
     const tag = label;
 
     let messageWrapper = eventStreamMarshaller.unmarshall(Buffer(message.data));
-    let messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
+    let messageBody = JSON.parse(
+      String.fromCharCode.apply(String, messageWrapper.body)
+    );
 
-    if (messageWrapper.headers[":message-type"].value === "event") {
-
+    if (messageWrapper.headers[':message-type'].value === 'event') {
       let results = messageBody.Transcript?.Results;
       if (results.length && !results[0].IsPartial) {
-
         const result = results[0];
-        console.log({...result});
+        console.log({ ...result });
 
         const data = {
           tag,
@@ -186,36 +184,32 @@ const createSocketStreamer = async (
           resultId: result.ResultId,
           channelId: result.ChannelId,
           items: result.Alternatives[0].Items,
-          transcript: result.Alternatives[0].Transcript
+          transcript: result.Alternatives[0].Transcript,
         };
-        console.log({onMessage: data})
+        console.log({ onMessage: data });
         returnTranscriptionDataCB(data);
-
       }
-
     }
   };
 
   webSocket.onerror = (error) => {
-    console.error('websocket onError event.')
+    console.error('websocket onError event.');
     console.error(error);
   };
-}
+};
 
 /**
- * 
- * @param {*} streamId 
- * @param {*} returnTranscriptionDataCB 
- * @returns 
+ *
+ * @param {*} streamId
+ * @param {*} returnTranscriptionDataCB
+ * @returns
  */
 const startRecording = async (streamId, returnTranscriptionDataCB) => {
-
   if (tabAudioStream || desktopMicStream) {
     stopRecording();
   }
 
   try {
-
     /*
      * Create dual channel audio source
      */
@@ -223,20 +217,20 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
     // Browser tab specific source - google meet, messenger for example.
     tabAudioStream = await createAudioStream(streamId);
 
-    console.log('creating background stream')
+    console.log('creating background stream');
 
     await createSocketStreamer(
       tabAudioStream,
-      (data) => {return socketTabAudioStream = new WebSocket(data.preSignedURL)}, 
+      (data) => {
+        return (socketTabAudioStream = new WebSocket(data.preSignedURL));
+      },
       returnTranscriptionDataCB,
       `brw`
     );
-    console.log('created background stream')
-
+    console.log('created background stream');
   } catch (e) {
-
-    console.log('startRecording create background stream exception:')
-    console.error(e)
+    console.log('startRecording create background stream exception:');
+    console.error(e);
     return false;
   }
 
@@ -244,56 +238,48 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
     // System microphone - laptop participant(s)
     desktopMicStream = await createAudioStream();
 
-    console.log('creating foreground stream')
+    console.log('creating foreground stream');
 
     await createSocketStreamer(
       desktopMicStream,
-      (data) => { return socketDesktopMicStream = new WebSocket(data.preSignedURL)},
+      (data) => {
+        return (socketDesktopMicStream = new WebSocket(data.preSignedURL));
+      },
       returnTranscriptionDataCB,
       `dsk`
     );
 
-    console.log('created foreground stream')
-
+    console.log('created foreground stream');
   } catch (e) {
-
-    console.log('startRecording create foreground stream exception:')
-    console.error(e)
+    console.log('startRecording create foreground stream exception:');
+    console.error(e);
     return false;
   }
 
   return true;
-
 };
 
 /**
- * 
- * @returns 
+ *
+ * @returns
  */
 const stopRecording = () => {
-
   try {
-
     if (tabAudioStream) {
-
       tabAudioStream.stop();
       tabAudioStream.destroy();
       tabAudioStream = undefined;
-
     }
 
     if (desktopMicStream) {
-
       desktopMicStream.stop();
       desktopMicStream.destroy();
       desktopMicStream = undefined;
-
     }
 
     if (socketTabAudioStream) {
-
       // send empty audio frame to terminate transcription
-      console.log('sending close transcribe event for socketTabAudioStream')
+      console.log('sending close transcribe event for socketTabAudioStream');
       socketTabAudioStream.send([]);
 
       socketTabAudioStream.close();
@@ -301,27 +287,20 @@ const stopRecording = () => {
     }
 
     if (socketDesktopMicStream) {
-
       // send empty audio frame to terminate transcription
-      console.log('sending close transcribe event for socketDesktopMicStream')
+      console.log('sending close transcribe event for socketDesktopMicStream');
       socketDesktopMicStream.send([]);
 
       socketDesktopMicStream.close();
       socketDesktopMicStream = undefined;
     }
-
-  } catch(e) {
-
-    console.log('stopRecording exception:')
+  } catch (e) {
+    console.log('stopRecording exception:');
     console.error(e);
     return false;
-
   }
 
   return true;
 };
 
-export {
-  startRecording,
-  stopRecording
-};
+export { startRecording, stopRecording };

@@ -4,17 +4,21 @@ let speakerIds = new Map();
 let currSpeaker = undefined;
 
 const randomColor = () => {
-  return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-}
+  return (
+    '#' +
+    Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, '0')
+  );
+};
 
 /**
  *  Return the short-id of a unique speaker in the dialogue.
- * 
+ *
  * @param string speaker - full length code of a unique speaker in a dialogue
  * @returns {speakerId, color}
  */
 const getSpeakerId = (speaker) => {
-
   let speakerObj = undefined;
 
   if (speakerIds.has(speaker)) {
@@ -22,27 +26,25 @@ const getSpeakerId = (speaker) => {
   } else {
     const speakerId = 'sp' + (speakerIds.size + 1).toString();
     const color = randomColor();
-    speakerObj = {speakerId, color};
+    speakerObj = { speakerId, color };
     speakerIds.set(speaker, speakerObj);
   }
-return speakerObj;
-}
+  return speakerObj;
+};
 
 /**
- * Process conversation. 
+ * Process conversation.
  * Each speaker line separately.
- * 
- * @param {*} data 
+ *
+ * @param {*} data
  */
 const processJob = (data) => {
-  
   let spkrPrefix = data.tag + '_' + data.channelId;
 
   let line = undefined;
   let lines = [];
 
   for (const item of data.items) {
-
     if (line && item?.Type === 'punctuation') {
       line.content += item.Content;
       continue;
@@ -69,9 +71,8 @@ const processJob = (data) => {
         color: spkObj.color,
         speaker,
         startTime: item.StartTime,
-        content: ''
+        content: '',
       };
-
     } else {
       // Same speaker as the last dialog line.
       // Get the last line from the cache and append content.
@@ -87,45 +88,37 @@ const processJob = (data) => {
     // Save last line from current transcript.
     lines = [...lines, line];
   }
- 
+
   dialogue = [...dialogue, ...lines];
   return lines;
-}
+};
 
 /**
- * 
- * @returns copy of internal dialog object 
+ *
+ * @returns copy of internal dialog object
  */
 const getDialogue = () => {
   // Return copy
   return [...dialogue];
-}
+};
 
 /**
  * @returns reference of internal dialog object
  */
 const getDialogueRef = () => {
   return dialogue;
-}
+};
 
 const getTopItem = () => {
-  return dialogue[dialogue.length-1];
-}
+  return dialogue[dialogue.length - 1];
+};
 
 const length = () => {
   return dialogue.length;
-}
+};
 
 const clear = () => {
   dialogue = [];
-}
+};
 
-export {
-  processJob,
-  getDialogue,
-  getDialogueRef,
-  getTopItem,
-  clear,
-  length
-}
-
+export { processJob, getDialogue, getDialogueRef, getTopItem, clear, length };
