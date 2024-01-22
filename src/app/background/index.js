@@ -223,6 +223,8 @@ const record_action = async (request, callback) => {
   let response = undefined;
 
   if (recording) {
+
+    console.log('stop recording - send request to offscreen')
     // If currently recording - stop
     response = await chrome.runtime.sendMessage({
       action: 'stop-recording',

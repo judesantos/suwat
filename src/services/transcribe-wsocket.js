@@ -6,8 +6,8 @@ import axios from 'axios';
 
 // UPDATE THIS ACCORDING TO YOUR BACKEND:
 //const backendUrl = "http://localhost:8080/aws-signature";
-//const backendUrl = "https://m9ozmudw1d.execute-api.us-east-1.amazonaws.com/Prod/preSignedURL/";
-const backendUrl = 'http://localhost:3000/preSignedURL';
+const backendUrl = "https://m9ozmudw1d.execute-api.us-east-1.amazonaws.com/Prod/preSignedURL/";
+//const backendUrl = 'http://localhost:3000/preSignedURL';
 
 const SAMPLE_RATE = 44100;
 //const SAMPLE_RATE = 16000;

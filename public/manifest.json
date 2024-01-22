@@ -2,7 +2,6 @@
   "manifest_version": 3,
   "name": "suwat - by yourtechy.com",
   "description": "suwat - The speech transcriber by yourtechy.com",
-  "key": "-----BEGINPUBLICKEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgyKPVbpMWU8rV/pBT9Y7f9gWojAlBUpFt3tiJvAE11iR8wu8OBCA0QkghxphgIjrXs6OxL7Xx4G3KCzktlnyaIYONbzb36AuBvOtCSChvc+DrSJpZ0wljThoZwHIYWMPp6thwIoHp7OjqnXT9zg9RNKLK40zv0C3PwMy0nPUJZ4Le6UE0DfPOlq8zULSzlVWLai1v2MyuuVaSbwGr42QXiJVjZ/qiMq2tBVr1nrLJOYWdlr2vkOFw+RD1JW/WZISygXe09Jy5UXeTDSL2Zf7Ro/FmYDprFmtyHvyI+hBOwkay4TiPVjAeKS3ml6f+B/Pi5VFEvlf546G+rlQT2QYIwIDAQAB-----ENDPUBLICKEY-----",
   "oauth2": {
     "client_id": "466910947435-k8868vvhpktebb3v008p4ue9kg7ubqg3.apps.googleusercontent.com",
     "project_id": "digital-seat-130823",
