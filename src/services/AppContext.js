@@ -1,9 +1,12 @@
 import { Component, createContext } from 'react';
 import * as transcript from './transcript.js';
 
+const RECORD_IDLE_TIMEOUT = 1000 * 60 * 0.5; // 30 seconds
 const AppContext = createContext();
 
 class AppCtxProvider extends Component {
+
+  recordIdleTimeout = undefined;
   state = {
     tabId: 0,
     lines: [],
@@ -50,6 +53,9 @@ class AppCtxProvider extends Component {
     // Listen for transcribe events
     chrome.runtime.onMessage.addListener((request) => {
       if (request.target === 'sidepanel') {
+        // restart idle timer
+        this.resetTimeout();
+        // update lines
         console.log({sidePanelUpdateLines: request})
         this.setState(state => ({...state, lines: [...state.lines, ...request.data]}))
         //chrome.storage.local.get('dialogue', (o) => {
@@ -114,6 +120,21 @@ class AppCtxProvider extends Component {
     }
   };
 
+  setTimeout = () => {
+    this.recordIdleTimeout = setTimeout(() => {
+      console.log('Connection idle for ' + RECORD_IDLE_TIMEOUT / 1000 + ' seconds. Disconnecting...')
+      this.toggleRecording()
+      this.recordIdleTimeout = undefined;
+    }, RECORD_IDLE_TIMEOUT);
+  }
+
+  resetTimeout = () => {
+    if (this.recordIdleTimeout) {
+      clearTimeout(this.recordIdleTimeout);
+    }
+    this.setTimeout();
+  }
+
   toggleRecording = async () => {
     const response = await chrome.runtime.sendMessage({
       action: 'record-action',
@@ -126,6 +147,8 @@ class AppCtxProvider extends Component {
       if (response.status === 'recording') {
         state = 'Stop';
         this.updateState('recording', true);
+        // set timeout
+        this.setTimeout();
       } else if (response.status === 'stopped') {
         state = 'Record';
         this.updateState('recording', false);

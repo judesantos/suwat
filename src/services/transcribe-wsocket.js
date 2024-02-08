@@ -207,12 +207,13 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
     stopRecording();
   }
 
-  try {
-    /*
-     * Create dual channel audio source
-     */
+  /*
+   * Create dual channel audio source
+   */
 
+  try {
     // Browser tab specific source - google meet, messenger for example.
+    //
     tabAudioStream = await createAudioStream(streamId);
 
     console.log('creating background stream');
@@ -232,27 +233,28 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
     return false;
   }
 
-  //try {
-  //  // System microphone - laptop participant(s)
-  //  desktopMicStream = await createAudioStream();
+  try {
+    // System microphone - laptop participant(s)
+    //
+    desktopMicStream = await createAudioStream();
 
-  //  console.log('creating foreground stream');
+    console.log('creating foreground stream');
 
-  //  await createSocketStreamer(
-  //    desktopMicStream,
-  //    (data) => {
-  //      return (socketDesktopMicStream = new WebSocket(data.preSignedURL));
-  //    },
-  //    returnTranscriptionDataCB,
-  //    `dsk`
-  //  );
+    await createSocketStreamer(
+      desktopMicStream,
+      (data) => {
+        return (socketDesktopMicStream = new WebSocket(data.preSignedURL));
+      },
+      returnTranscriptionDataCB,
+      `dsk`
+    );
 
-  //  console.log('created foreground stream');
-  //} catch (e) {
-  //  console.log('startRecording create foreground stream exception:');
-  //  console.error(e);
-  //  return false;
-  //}
+    console.log('created foreground stream');
+  } catch (e) {
+    console.log('startRecording create foreground stream exception:');
+    console.error(e);
+    return false;
+  }
 
   return true;
 };
