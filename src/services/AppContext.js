@@ -50,12 +50,14 @@ class AppCtxProvider extends Component {
     // Listen for transcribe events
     chrome.runtime.onMessage.addListener((request) => {
       if (request.target === 'sidepanel') {
-        chrome.storage.local.get('dialogue', (o) => {
-          if (o?.dialogue) {
-            console.log({ new_dialog: o.dialogue });
-            this.setState((state) => (state.lines = o.dialogue));
-          }
-        });
+        console.log({sidePanelUpdateLines: request})
+        this.setState(state => ({...state, lines: [...state.lines, ...request.data]}))
+        //chrome.storage.local.get('dialogue', (o) => {
+        //  if (o?.dialogue) {
+        //    console.log({ new_dialog: o.dialogue });
+        //    this.setState((state) => (state.lines = o.dialogue));
+        //  }
+        //});
       }
     });
   };
@@ -79,7 +81,8 @@ class AppCtxProvider extends Component {
   /**
    * Hook - State change update
    */
-  componentDidUpdate = () => {
+  componentDidUpdate = async () => {
+    console.log('componentDidUpdate')
     switch (this.state.selectedMenuItem) {
       case 4:
         console.log('settings command');
@@ -87,13 +90,17 @@ class AppCtxProvider extends Component {
       case 3:
         console.log('delete command');
         if (this.state.lines.length && window.confirm('Delete current job?')) {
+          console.log('deleting...')
           // clear from db
-          chrome.storage.local.remove('dialogue');
+          await chrome.storage.local.remove('dialogue');
           // clear storage model
           transcript.clear();
           // clear local cache
           this.updateState('lines', []);
           this.updateState('selectedMenuItem', 0);
+          setTimeout(() => {
+            console.log({state_after_delete: this.state})
+          }, 1000)
         }
         break;
       case 2:
@@ -157,7 +164,7 @@ class AppCtxProvider extends Component {
           setSelectedMenuItem: this.setSelectedMenuItem,
           setPopupItem: this.setPopupItem,
           toggleRecording: this.toggleRecording,
-          updatetate: this.updateState,
+          updateState: this.updateState,
         }}
       >
         {this.props.children}

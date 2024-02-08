@@ -176,8 +176,6 @@ const createSocketStreamer = async (
       let results = messageBody.Transcript?.Results;
       if (results.length && !results[0].IsPartial) {
         const result = results[0];
-        console.log({ ...result });
-
         const data = {
           tag,
           timestamp: Date.now(),
@@ -234,27 +232,27 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
     return false;
   }
 
-  try {
-    // System microphone - laptop participant(s)
-    desktopMicStream = await createAudioStream();
+  //try {
+  //  // System microphone - laptop participant(s)
+  //  desktopMicStream = await createAudioStream();
 
-    console.log('creating foreground stream');
+  //  console.log('creating foreground stream');
 
-    await createSocketStreamer(
-      desktopMicStream,
-      (data) => {
-        return (socketDesktopMicStream = new WebSocket(data.preSignedURL));
-      },
-      returnTranscriptionDataCB,
-      `dsk`
-    );
+  //  await createSocketStreamer(
+  //    desktopMicStream,
+  //    (data) => {
+  //      return (socketDesktopMicStream = new WebSocket(data.preSignedURL));
+  //    },
+  //    returnTranscriptionDataCB,
+  //    `dsk`
+  //  );
 
-    console.log('created foreground stream');
-  } catch (e) {
-    console.log('startRecording create foreground stream exception:');
-    console.error(e);
-    return false;
-  }
+  //  console.log('created foreground stream');
+  //} catch (e) {
+  //  console.log('startRecording create foreground stream exception:');
+  //  console.error(e);
+  //  return false;
+  //}
 
   return true;
 };

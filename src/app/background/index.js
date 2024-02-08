@@ -276,7 +276,6 @@ const recvTranscriptionEvents = async () => {
   // Establish connection to offscreen 'transcribe' data source.
   chrome.runtime.onConnect.addListener((port) => {
     // Ignore non 'transcribe' connections
-
     if (port.name !== 'transcribe') return false;
     // Only 1 onMessage callback at a time.
     if (transcribePort) return false;
@@ -298,7 +297,7 @@ const recvTranscriptionEvents = async () => {
           data: lines,
         });
         // Save updates
-        chrome.storage.local.set({ dialogue: transcript.getDialogue() });
+        //chrome.storage.local.set({ dialogue: transcript.getDialogue() });
       } else if (msg.status === 'disconnect') {
         transcribePort.disconnect();
         transcribePort = undefined;

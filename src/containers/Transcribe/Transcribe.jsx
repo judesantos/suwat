@@ -52,44 +52,40 @@ class TranscribeComponent extends Component {
                     context.lines.map((line) => (
                       <tr key={line?.id} className="SpeakerLine">
                         {line.tag === 'brw' && (
-                          <>
-                            <td className="Bubble Bubble-background SpeakerStatement">
-                              <div
-                                className="SpeakerId"
-                                style={{ color: line.color }}
-                              >
-                                {line?.speakerId}
-                              </div>
-                              {line?.content
-                                ?.split('\n')
-                                ?.map((para, idx) =>
-                                  para.length ? <p>{para}</p> : <></>
-                                )}
-                              <div class="time">
-                                {new Date(line.timestamp).toLocaleTimeString()}
-                              </div>
-                            </td>
-                          </>
+                          <td className="Bubble Bubble-background SpeakerStatement">
+                            <div
+                              className="SpeakerId"
+                              style={{ color: line.color }}
+                            >
+                              {line?.speakerId}
+                            </div>
+                            {line?.content
+                              ?.split('\n')
+                              ?.map((para, idx) =>
+                                para.length ? <p>{para}</p> : <></>
+                              )}
+                            <div className="time">
+                              {new Date(line.timestamp).toLocaleTimeString()}
+                            </div>
+                          </td>
                         )}
                         {line.tag === 'dsk' && (
-                          <>
-                            <td className="Bubble Bubble-foreground SpeakerStatement">
-                              <div
-                                className="SpeakerId"
-                                style={{ color: line.color }}
-                              >
-                                {line?.speakerId}
-                              </div>
-                              {line?.content
-                                ?.split('\n')
-                                ?.map((para, idx) =>
-                                  para.length ? <p>{para}</p> : <></>
-                                )}
-                              <div className="time">
-                                {new Date(line.timestamp).toLocaleTimeString()}
-                              </div>
-                            </td>
-                          </>
+                          <td className="Bubble Bubble-foreground SpeakerStatement">
+                            <div
+                              className="SpeakerId"
+                              style={{ color: line.color }}
+                            >
+                              {line?.speakerId}
+                            </div>
+                            {line?.content
+                              ?.split('\n')
+                              ?.map((para, idx) =>
+                                para.length ? <p>{para}</p> : <></>
+                              )}
+                            <div className="time">
+                              {new Date(line.timestamp).toLocaleTimeString()}
+                            </div>
+                          </td>
                         )}
                       </tr>
                     ))}

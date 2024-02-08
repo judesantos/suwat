@@ -1,8 +1,6 @@
 let dialogue = []; // stack of conversation lines
 let speakerIds = new Map();
 
-let currSpeaker = undefined;
-
 const randomColor = () => {
   return (
     '#' +
@@ -41,10 +39,12 @@ const getSpeakerId = (speaker) => {
 const processJob = (data) => {
   let spkrPrefix = data.tag + '_' + data.channelId;
 
+  let currSpeaker = undefined;
   let line = undefined;
   let lines = [];
 
   for (const item of data.items) {
+
     if (line && item?.Type === 'punctuation') {
       line.content += item.Content;
       continue;
@@ -76,21 +76,25 @@ const processJob = (data) => {
     } else {
       // Same speaker as the last dialog line.
       // Get the last line from the cache and append content.
-      if (!line && dialogue.length) {
-        line = dialogue.pop();
-        line.content += '\n\n'; // new paragraph
-      }
+      //if (!line && dialogue.length) {
+      //  line = dialogue.pop();
+      //  line.content += '\n\n'; // new paragraph
+      //}
     }
 
-    line.content += (line.content.length ? ' ' : '') + item.Content;
-  }
+    line.content += (line?.content.length ? ' ' : '') + item.Content;
+  } // end for loop
+
   if (line) {
     // Save last line from current transcript.
     lines = [...lines, line];
   }
 
   dialogue = [...dialogue, ...lines];
-  return lines;
+  const _lines = [...lines];
+  lines = [];
+  console.log({_lines})
+  return _lines;
 };
 
 /**
