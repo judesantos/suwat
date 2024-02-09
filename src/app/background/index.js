@@ -84,11 +84,13 @@ chrome.runtime.onInstalled.addListener(async () => {
     // Check if the navigation is in an offscreen frame
     if (details.frameId === 0 && details.tabId !== undefined) {
         // details.url contains the new URL
-        console.log("URL changed in an offscreen frame: " + details.url + ". Closing...");
-        chrome.sidePanel.setOptions({
-          tabId,
-          enabled: false
-        }); 
+        console.log({details})
+        if (details.transitionQualifiers.length) {
+          chrome.sidePanel.setOptions({
+            tabId,
+            enabled: false
+          }); 
+        }
         // You can perform any action you need here
     }
 });
