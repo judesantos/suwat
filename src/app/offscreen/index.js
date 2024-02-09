@@ -78,13 +78,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       return true;
     } else if (request.action === 'logout') {
-      setTimeout(() => {
-        const msg =
-          '\n\nYou have closed suwat.\n\nDiscard current job and Logout?\n\n';
-        if (window.confirm(msg)) {
-          record_stop(sendResponse);
-        }
-      }, 100);
+      //setTimeout(() => {
+      //  const msg =
+      //    '\n\nYou have closed suwat.\n\nDiscard current job and Logout?\n\n';
+      //  if (window.confirm(msg)) {
+      //    record_stop(sendResponse);
+      //  }
+      //}, 100);
 
       return true;
     } else if (request.action === 'tab-exists') {

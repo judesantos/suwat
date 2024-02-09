@@ -120,6 +120,10 @@ class AppCtxProvider extends Component {
     }
   };
 
+  /**
+   * Idle timer. Stop recording when no more activity 
+   * Idle time to expire: RECORD_IDLE_TIMEOUT
+   */
   setTimeout = () => {
     this.recordIdleTimeout = setTimeout(() => {
       console.log('Connection idle for ' + RECORD_IDLE_TIMEOUT / 1000 + ' seconds. Disconnecting...')
@@ -128,6 +132,9 @@ class AppCtxProvider extends Component {
     }, RECORD_IDLE_TIMEOUT);
   }
 
+  /**
+   * Reset timer everytime we detect activity.
+   */
   resetTimeout = () => {
     if (this.recordIdleTimeout) {
       clearTimeout(this.recordIdleTimeout);
@@ -150,6 +157,9 @@ class AppCtxProvider extends Component {
         // set timeout
         this.setTimeout();
       } else if (response.status === 'stopped') {
+        // Stop timer
+        clearTimeout(this.recordIdleTimeout);
+        // update states
         state = 'Record';
         this.updateState('recording', false);
       }

@@ -79,6 +79,19 @@ chrome.runtime.onInstalled.addListener(async () => {
     });
     chrome.sidePanel.open({ tabId: tab.id });
   });
+  
+  chrome.webNavigation.onCommitted.addListener(function(details) {
+    // Check if the navigation is in an offscreen frame
+    if (details.frameId === 0 && details.tabId !== undefined) {
+        // details.url contains the new URL
+        console.log("URL changed in an offscreen frame: " + details.url + ". Closing...");
+        chrome.sidePanel.setOptions({
+          tabId,
+          enabled: false
+        }); 
+        // You can perform any action you need here
+    }
+});
 });
 
 chrome.runtime.onStartup.addListener(() => {
