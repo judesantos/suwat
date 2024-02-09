@@ -88,15 +88,13 @@ class AppCtxProvider extends Component {
    * Hook - State change update
    */
   componentDidUpdate = async () => {
-    console.log('componentDidUpdate')
     switch (this.state.selectedMenuItem) {
-      case 4:
-        console.log('settings command');
+      case 4: // settings
+        this.updateState('selectedMenuItem', 0)
         break;
-      case 3:
-        console.log('delete command');
+      case 3: // delete
+        this.updateState('selectedMenuItem', 0)
         if (this.state.lines.length && window.confirm('Delete current job?')) {
-          console.log('deleting...')
           // clear from db
           await chrome.storage.local.remove('dialogue');
           // clear storage model
@@ -109,11 +107,30 @@ class AppCtxProvider extends Component {
           }, 1000)
         }
         break;
-      case 2:
-        console.log('save command');
+      case 2: // save
+        this.updateState('selectedMenuItem', 0)
+        await chrome.storage.local.get('dialogue', (obj) => {
+          if (obj?.dialogue.length) {
+            let lines = []
+            obj.dialogue.forEach(item => {
+              lines.push(item.speakerId + ': ' + item.content) 
+            });
+            const data_string = lines.join('\n')
+            const blob = new Blob([data_string], {type: 'text/plain'})
+            const a = document.createElement('a')
+            a.style.display = 'none'
+            a.href = window.URL.createObjectURL(blob)
+            const date = new Date()
+            a.download = 'transcript_' + date.toISOString() + '.txt'
+            document.body.appendChild(a);
+            a.click()
+            URL.revokeObjectURL(a.href)
+            document.body.removeChild(a)
+          }
+        });
         break;
-      case 1:
-        console.log('edit command');
+      case 1: // edit
+        this.updateState('selectedMenuItem', 0)
         break;
       default:
         break;

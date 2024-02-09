@@ -298,7 +298,7 @@ const recvTranscriptionEvents = async () => {
     transcribePort = port;
 
     // Create 'transcribe' event callback.
-    transcribePort.onMessage.addListener((msg) => {
+    transcribePort.onMessage.addListener(async (msg) => {
       if (msg.status === 'ready') {
         // Tell data source we are ready to receive events.
         transcribePort.postMessage({ status: 'ready' });
@@ -306,13 +306,20 @@ const recvTranscriptionEvents = async () => {
         // Format, separate speakers by line.
         const lines = transcript.processJob(msg.data);
         // Send new transcribe data to sidepanel
-        chrome.runtime.sendMessage({
+        await chrome.runtime.sendMessage({
           action: 'transcription',
           target: 'sidepanel',
           data: lines,
         });
         // Save updates
-        //chrome.storage.local.set({ dialogue: transcript.getDialogue() });
+        await chrome.storage.local.get('dialogue', async (obj) => {
+          if (!obj?.dialogue || obj?.dialogue.length <= 0) {
+            obj.dialogue = lines
+          } else {
+            obj.dialogue = [...obj.dialogue, ...lines]
+          }
+          await chrome.storage.local.set({ 'dialogue': obj.dialogue });
+        })
       } else if (msg.status === 'disconnect') {
         transcribePort.disconnect();
         transcribePort = undefined;

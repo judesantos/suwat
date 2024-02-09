@@ -78,6 +78,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       return true;
     } else if (request.action === 'logout') {
+      record_stop(sendResponse);
+      chrome.storage.local.remove('dialogue');
       //setTimeout(() => {
       //  const msg =
       //    '\n\nYou have closed suwat.\n\nDiscard current job and Logout?\n\n';
