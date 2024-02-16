@@ -25,7 +25,7 @@ class PopupMenuComponent extends Component {
             this.context.setSelectedMenuItem(1);
             this.context.setPopupItem(!this.context.popupMenuItem);
           }}
-          disabled={this.context.recording}
+          disabled={this.context.recording || !this.context.lines.length}
         >
           <div className="Checked">
             {this.context.selectedMenuItem === 1 && (
@@ -43,7 +43,7 @@ class PopupMenuComponent extends Component {
             this.context.setSelectedMenuItem(2);
             this.context.setPopupItem(!this.context.popupMenuItem);
           }}
-          disabled={this.context.recording}
+          disabled={this.context.recording || !this.context.lines.length}
         >
           <div className="Checked">
             {this.context.selectedMenuItem === 2 && (
@@ -61,7 +61,7 @@ class PopupMenuComponent extends Component {
             this.context.setSelectedMenuItem(3);
             this.context.setPopupItem(!this.context.popupMenuItem);
           }}
-          disabled={this.context.recording}
+          disabled={this.context.recording || !this.context.lines.length}
         >
           <div className="Checked">
             {this.context.selectedMenuItem === 3 && (
