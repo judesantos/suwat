@@ -79,7 +79,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       return true;
     } else if (request.action === 'logout') {
       record_stop(sendResponse);
-      chrome.storage.local.remove('dialogue');
+      chrome.storage?.local.remove('dialogue');
       //setTimeout(() => {
       //  const msg =
       //    '\n\nYou have closed suwat.\n\nDiscard current job and Logout?\n\n';
@@ -87,14 +87,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       //    record_stop(sendResponse);
       //  }
       //}, 100);
-
       return true;
+
     } else if (request.action === 'tab-exists') {
-      setTimeout(() => {
-        const msg =
-          '\n\nMultiple sessions detected.\n\nClose the other session and try again.\n\n';
-        alert(msg);
-      }, 100);
+      window.alert('\nSuwat is open in another tab\nClose Suwat in the other tab\n\nTry Again\n\n')
     }
   }
 });

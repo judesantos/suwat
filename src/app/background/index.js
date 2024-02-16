@@ -32,45 +32,40 @@ chrome.runtime.onInstalled.addListener(async () => {
     });
   }
 
-  chrome.action.onClicked.addListener(async (tab) => {
-    //navigator.permissions.query({name: 'microphone'})
-    //.then((permissionObj) => {
-    //  console.log('permission: ' + permissionObj.state);
-    chrome.permissions.request(
-      {
-        permissions: ['tabs'],
-        origins: ['<all_urls>'],
-      },
-      (granted) => {
-        // The callback argument will be true if the user granted the permissions.
-        if (granted) {
-          console.log('permission granted');
-        } else {
-          console.log('permission denied');
-        }
-      }
-    );
-    //})
-    //.catch((error) => {
-    //  console.error('Got error :', error);
-    //})
+  chrome.action.onClicked.addListener((tab) => {
 
-    console.log('sidpanel event clicked: ' + tabId);
+    //chrome.permissions.request(
+    //  {
+    //    permissions: ['tabs'],
+    //    origins: ['<all_urls>'],
+    //  },
+    //  (granted) => {
+    //    // The callback argument will be true if the user granted the permissions.
+    //    if (granted) {
+    //      console.log('permission granted');
+    //    } else {
+    //      console.log('permission denied');
+    //    }
+    //  }
+    //);
+
+    console.log('sidpanel event clicked: ' + tab.id + ', other-tab: ' + tabId);
     if (tabId) {
-      if (tab.id === tabId) return; // same tab. Ignore
+      if (tab.id === tabId)
+        return; // same tab. Ignore
       // Only 1 sidepanel can be open at a time.
       // Send message to offscreen and warn user.
-
+      console.log('send tab-exists message to offscreen')
       chrome.runtime.sendMessage({
         action: 'tab-exists',
         target: 'offscreen',
       });
-
-      return;
+      // cancel
+      return
     }
 
     tabId = tab.id;
-    console.log('open side panel for tab: ' + tabId);
+    console.log('open side panel for tab: ' + tab.id);
 
     chrome.sidePanel.setOptions({
       tabId: tab.id,
