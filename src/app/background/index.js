@@ -133,6 +133,13 @@ chrome.runtime.onConnect.addListener((port) => {
             if (token) {
               console.log('google auth. token: ' + token);
 
+              chrome.cookies.set({
+                url: 'http://suwat.com', // Change to your domain
+                name: 'token',
+                value: token,
+                expirationDate: Math.floor(Date.now() / 1000) + (3 * 60) // 3 minutes
+              });
+
               sidepanelPort.postMessage({
                 action: 'sign-in',
                 status: 'success',
