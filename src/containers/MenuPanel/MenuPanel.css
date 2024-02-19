@@ -1,0 +1,58 @@
+.MenuPanel {
+  /*
+  min-width: 140px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  bottom: 120%;
+  right: 0%;
+  background-color: rgb(233, 229, 229);
+  display: none;
+  */
+}
+
+.MenuItem {
+  margin: auto;
+  padding: 8px;
+  border-radius: 48px;
+  /*
+  padding: 8px 12px;
+  width: 25%;
+  color: black;
+  height: 60%;
+  */
+}
+
+.Checked {
+  height: inherit;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.checkIcon {
+  display: inline-block;
+}
+
+.MenuItemText {
+  /*
+  float: right;
+  text-align: right;
+  */
+}
+
+.Icon {
+  height: 24px;
+  width: 24px;
+}
+
+.Play {
+  color: red;
+}
+
+.MenuItem:hover {
+  background-color: #ddd;
+}
+
+.MenuItem[disabled] {
+  pointer-events: none;
+  opacity: 0.4;
+}

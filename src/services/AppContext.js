@@ -84,10 +84,21 @@ class AppCtxProvider extends Component {
     }
   };
 
+  isAuthorized = async () => {
+    const cookie = await chrome.cookies.get({url:'http://suwat.com', name:'token'});
+    return cookie ? true : false;
+  }
+
   /**
    * Hook - State change update
    */
   componentDidUpdate = async () => {
+
+    if (this.state.selectedMenuItem && !this.isAuthorized()) {
+      // Logout
+      return;
+    } 
+
     switch (this.state.selectedMenuItem) {
       case 4: // settings
         this.updateState('selectedMenuItem', 0)

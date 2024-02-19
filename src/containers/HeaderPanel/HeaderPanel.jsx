@@ -3,7 +3,8 @@ import './HeaderPanel.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 
-import PopupMenuComponent from '../PopupMenu/PopupMenu';
+//import PopupMenuComponent from '../PopupMenu/PopupMenu';
+import MenuPanelComponent from '../MenuPanel/MenuPanel';
 import AppContext from '../../services/AppContext';
 
 class HeaderPanelComponent extends Component {
@@ -18,7 +19,11 @@ class HeaderPanelComponent extends Component {
   render() {
     return (
       <div className="HeaderPanel">
-        <button className="ButtonRecord hover:bg-indigo-100 border border-gray-100" onClick={this.context.toggleRecording}>
+        {/**
+        <button 
+          className="ButtonRecord hover:bg-indigo-100 border border-gray-100"
+          onClick={this.context.toggleRecording}
+        >
           {this.context.recordingState}
         </button>
         <div className="MenuDropDown" onMouseOver={this.onMenuEvent}>
@@ -27,6 +32,8 @@ class HeaderPanelComponent extends Component {
           </button>
           {this.context.popupMenuItem && <PopupMenuComponent />}
         </div>
+        */}
+        <MenuPanelComponent/>
       </div>
     );
   }

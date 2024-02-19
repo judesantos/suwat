@@ -52,13 +52,13 @@ const Sidepanel = () => {
     console.log('login!!');
 
     try {
+
       if (!backgroundPort) {
         console.error('Tunnel port is not ready. Abort!');
         return;
       }
 
       console.log('sending sign-in request');
-
       backgroundPort.postMessage({
         action: 'sign-in',
         target: 'background',
@@ -68,8 +68,17 @@ const Sidepanel = () => {
     }
   };
 
+  const isAuthorized = async () => {
+      const cookie = await chrome.cookies.get({url:'http://suwat.com', name:'token'});
+      console.log({cookie})
+      if (cookie) {
+        setLoggedIn(true)
+      }
+      
+  }
+  // Auto-login if pre-authed
+  isAuthorized()
   // Render component
-
   return (
     <AppCtxProvider>
       <div className="App">

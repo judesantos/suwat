@@ -16,14 +16,18 @@
 }
 
 .HeaderPanel {
+  display: flex;
+  justify-content: space-evenly;
   /*
   height: 5%;
   padding: 3%;
   */
   background-color: 1px solid rgb(188, 178, 178);
+  /*
   text-align: right;
   position: relative;
   display: inline-block;
+  */
   width: 100%;
 }
 
@@ -41,8 +45,10 @@
 }
 
 .MenuDropDown {
+  /*
   position: relative;
   display: inline-block;
+  */
 }
 
 .MenuDropDown .PopupMenu {
@@ -53,7 +59,9 @@
 
 .ButtonDropDown,
 .Button {
+  /*
   align-items: center;
+  */
   margin: 1%;
 }
 
