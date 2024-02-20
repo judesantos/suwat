@@ -1,5 +1,6 @@
 import { Component, createContext } from 'react';
 import * as transcript from './transcript.js';
+import icon34 from '../../public/assets/img/icon-34.png';
 
 const RECORD_IDLE_TIMEOUT = 1000 * 60 * 0.5; // 30 seconds
 const AppContext = createContext();
@@ -24,14 +25,6 @@ class AppCtxProvider extends Component {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tabId = tabs[0].id;
       chrome.storage.local.get({ tabId, recordState: '' }, (o) => {
-        console.log(
-          'get tabId: ' +
-            o.tabId +
-            ', currentTabId: ' +
-            tabId +
-            ', argTabId: ' +
-            tabs[0].id
-        );
         if (o.recordState.length) {
           this.updateState('recordingState', o.recordState);
         }
@@ -39,7 +32,6 @@ class AppCtxProvider extends Component {
         if (!o.tabId) {
           // Save current state.
           // Popup may go out of scope but will retain state when viewed later.
-          console.log('set tabId: ' + tabId);
           chrome.storage.local.set({
             tabId,
             recordState: this.state.recordingState,
@@ -56,14 +48,7 @@ class AppCtxProvider extends Component {
         // restart idle timer
         this.resetTimeout();
         // update lines
-        console.log({sidePanelUpdateLines: request})
         this.setState(state => ({...state, lines: [...state.lines, ...request.data]}))
-        //chrome.storage.local.get('dialogue', (o) => {
-        //  if (o?.dialogue) {
-        //    console.log({ new_dialog: o.dialogue });
-        //    this.setState((state) => (state.lines = o.dialogue));
-        //  }
-        //});
       }
     });
   };
@@ -72,9 +57,12 @@ class AppCtxProvider extends Component {
    * Hook - on unload
    */
   componentWillUnmount = () => {
-    alert(
-      'AppContext componentWillUnmount: Do you want to exit without saving work?'
-    );
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: icon34,
+      silent: false,
+      message: "AppContext componentWillUnmount: Do you want to exit without saving work?",
+    });
   };
 
   stopRecording = () => {
@@ -96,7 +84,7 @@ class AppCtxProvider extends Component {
 
     if (this.state.selectedMenuItem && !this.isAuthorized()) {
       // Logout
-      const port = chrome.runtime.connect({ name: 'sidepanel' });
+      chrome.runtime.connect({ name: 'sidepanel' });
       return;
     } 
 
@@ -114,9 +102,6 @@ class AppCtxProvider extends Component {
           // clear local cache
           this.updateState('lines', []);
           this.updateState('selectedMenuItem', 0);
-          setTimeout(() => {
-            console.log({state_after_delete: this.state})
-          }, 1000)
         }
         break;
       case 2: // save
@@ -155,7 +140,6 @@ class AppCtxProvider extends Component {
    */
   setTimeout = () => {
     this.recordIdleTimeout = setTimeout(() => {
-      console.log('Connection idle for ' + RECORD_IDLE_TIMEOUT / 1000 + ' seconds. Disconnecting...')
       this.toggleRecording()
       this.recordIdleTimeout = undefined;
     }, RECORD_IDLE_TIMEOUT);
@@ -192,7 +176,13 @@ class AppCtxProvider extends Component {
         state = 'Record';
         this.updateState('recording', false);
       } else {
-        alert(response.message)
+        chrome.notifications.create({
+          type: 'basic',
+          iconUrl: icon34,
+          silent: false,
+          title: response.message,
+          message: "Check settings and permissions",
+        });
       }
 
       this.updateState('recordingState', state);

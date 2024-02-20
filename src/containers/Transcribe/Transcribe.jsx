@@ -25,7 +25,6 @@ class TranscribeComponent extends Component {
   };
 
   componentWillUnmount() {
-    alert('transcription will unmount');
   }
 
   componentDidUpdate() {

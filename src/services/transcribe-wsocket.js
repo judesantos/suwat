@@ -160,7 +160,6 @@ const createSocketStreamer = async (
   webSocket.binaryType = 'arraybuffer';
 
   webSocket.onopen = () => {
-    console.log('socket open');
     streamSource.on('data', (rawAudioChunk) => {
       if (webSocket.readyState === WebSocket.OPEN) {
         const binary = convertAudioToBinaryMessage(rawAudioChunk);
@@ -193,7 +192,6 @@ const createSocketStreamer = async (
           items: result.Alternatives[0].Items,
           transcript: result.Alternatives[0].Transcript,
         };
-        console.log({ onMessage: data });
         returnTranscriptionDataCB(data);
       }
     }
@@ -227,7 +225,6 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
 
   } catch (e) {
 
-    console.log('startRecording create background stream exception:');
     console.error(e);
     return TRANSCRIBE_STATUS.BACKGROUND_INPUT_DEVICE_ERROR;
 
@@ -242,13 +239,10 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
 
     stopRecording();
 
-    console.log('startRecording create foreground stream exception:');
     console.error(e);
     return TRANSCRIBE_STATUS.FOREGROUND_INPUT_DEVICE_ERROR;
 
   }
-
-  console.log('creating background stream');
 
   try {
 
@@ -261,9 +255,6 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
       `brw`
     );
 
-    console.log('created background stream');
-    console.log('creating foreground stream');
-
     await createSocketStreamer(
       desktopMicStream,
       (data) => {
@@ -273,15 +264,11 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
       `dsk`
     );
 
-    console.log('created foreground stream');
-
     } catch(e) {
 
       stopRecording()
 
-      console.log('startRecording create foreground stream exception:');
       console.error(e);
-
       return TRANSCRIBE_STATUS.SOCKET_STREAM_ERROR;
     }
 
@@ -304,15 +291,13 @@ const stopRecording = () => {
 
     if (socketTabAudioStream) {
       // send empty audio frame to terminate transcription
-      console.log('sending close transcribe event for socketTabAudioStream');
       socketTabAudioStream.send([]);
-
       socketTabAudioStream.close();
       socketTabAudioStream = undefined;
     }
 
   } catch (e) {
-    console.log('stopRecording background exception:');
+
     console.error(e);
     return TRANSCRIBE_STATUS.BACKGROUND_SESSION_ERROR;
   }
@@ -327,14 +312,12 @@ const stopRecording = () => {
 
     if (socketDesktopMicStream) {
       // send empty audio frame to terminate transcription
-      console.log('sending close transcribe event for socketDesktopMicStream');
       socketDesktopMicStream.send([]);
-
       socketDesktopMicStream.close();
       socketDesktopMicStream = undefined;
     }
   } catch (e) {
-    console.log('stopRecording foreground exception:');
+    
     console.error(e);
     return TRANSCRIBE_STATUS.FOREGROUND_SESSION_ERROR;
   }

@@ -4,6 +4,7 @@ import GreetingComponent from '../../containers/Greetings/Greetings.jsx';
 import SignInComponent from '../../containers/SignIn/SignIn.jsx';
 import TranscribeComponent from '../../containers/Transcribe/Transcribe.jsx';
 
+import icon34 from '../../../public/assets/img/icon-34.png';
 import './Sidepanel.css';
 
 import { AppCtxProvider } from '../../services/AppContext.js';
@@ -13,8 +14,6 @@ const Sidepanel = () => {
   const [backgroundPort, setBackgroundPort] = useState(undefined);
 
   useEffect(() => {
-    console.log('sidepanel alive!!!');
-
     // Keeps service-worker aware of our existence.
     // Sends disconnect signal on sidepanel reload event.
     if (!backgroundPort) {
@@ -24,33 +23,30 @@ const Sidepanel = () => {
       port.onMessage.addListener((msg) => {
         if (msg.action === 'sign-in') {
           if (msg.status === 'success') {
-            console.log('Login success!');
             // Hide login form and go to main screen.
             setLoggedIn(true);
-
-            setTimeout(() => {
-              alert('Welcome to suwat!');
-            }, 500);
+            chrome.notifications.create({
+              type: 'basic',
+              iconUrl: icon34,
+              silent: false,
+              message: "Welcome to Suwat!",
+            });
           } else {
             console.error('Login failed! ' + msg.msg);
           }
         }
       });
 
-      console.log('background tunnel created!');
     } else {
       console.log('connection exists');
     }
 
     return () => {
       // component unload event
-      alert('Sidepanel closed');
     };
   }, []);
 
   const login = () => {
-    console.log('login!!');
-
     try {
 
       if (!backgroundPort) {
@@ -58,7 +54,6 @@ const Sidepanel = () => {
         return;
       }
 
-      console.log('sending sign-in request');
       backgroundPort.postMessage({
         action: 'sign-in',
         target: 'background',
@@ -70,7 +65,6 @@ const Sidepanel = () => {
 
   const isAuthorized = async () => {
       const cookie = await chrome.cookies.get({url:'http://suwat.com', name:'token'});
-      console.log({cookie})
       if (cookie) {
         setLoggedIn(true)
       }

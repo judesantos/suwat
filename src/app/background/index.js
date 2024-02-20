@@ -5,7 +5,6 @@ let sidepanelPort = undefined;
 let tabId = undefined;
 
 chrome.runtime.onInstalled.addListener(async () => {
-  console.log('onInstalled.addListener');
   /**
    * Sidepanel setup
    */
@@ -34,28 +33,11 @@ chrome.runtime.onInstalled.addListener(async () => {
 
   chrome.action.onClicked.addListener((tab) => {
 
-    //chrome.permissions.request(
-    //  {
-    //    permissions: ['tabs'],
-    //    origins: ['<all_urls>'],
-    //  },
-    //  (granted) => {
-    //    // The callback argument will be true if the user granted the permissions.
-    //    if (granted) {
-    //      console.log('permission granted');
-    //    } else {
-    //      console.log('permission denied');
-    //    }
-    //  }
-    //);
-
-    console.log('sidpanel event clicked: ' + tab.id + ', other-tab: ' + tabId);
     if (tabId) {
       if (tab.id === tabId)
         return; // same tab. Ignore
       // Only 1 sidepanel can be open at a time.
       // Send message to offscreen and warn user.
-      console.log('send tab-exists message to offscreen')
       chrome.runtime.sendMessage({
         action: 'tab-exists',
         target: 'offscreen',
@@ -65,7 +47,6 @@ chrome.runtime.onInstalled.addListener(async () => {
     }
 
     tabId = tab.id;
-    console.log('open side panel for tab: ' + tab.id);
 
     chrome.sidePanel.setOptions({
       tabId: tab.id,
@@ -79,7 +60,6 @@ chrome.runtime.onInstalled.addListener(async () => {
     // Check if the navigation is in an offscreen frame
     if (details.frameId === 0 && details.tabId !== undefined) {
         // details.url contains the new URL
-        console.log({details})
         if (details.transitionQualifiers.length) {
           chrome.sidePanel.setOptions({
             tabId,
@@ -103,7 +83,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // Popup conduit - listen for popup commands.
   if (request.target === 'background') {
     if (request.action === 'record-action') {
-      console.log('background message listener: record-action!');
       record_action(request, sendResponse);
 
       return true; // tell popup that we will be sending command status response soon.
@@ -123,7 +102,6 @@ chrome.runtime.onConnect.addListener((port) => {
     //
     sidepanelPort.onMessage.addListener(async (msg) => {
       if (msg.action === 'sign-in') {
-        console.log('calling google auth...');
 
         try {
           /**
@@ -131,8 +109,6 @@ chrome.runtime.onConnect.addListener((port) => {
            */
           chrome.identity.getAuthToken({ interactive: true }, (token) => {
             if (token) {
-              console.log('google auth. token: ' + token);
-
               chrome.cookies.set({
                 url: 'http://suwat.com', // Change to your domain
                 name: 'token',
@@ -167,26 +143,12 @@ chrome.runtime.onConnect.addListener((port) => {
       } else if (msg.action === 'sign-out') {
         const token = await signOut();
 
-        //if (token) {
-
-        console.log('logout success');
-
         sidepanelPort.postMessage({
           action: 'sign-out',
           status: 'success',
           token,
         });
 
-        //} else {
-
-        //  console.log('logout failed: ' + chrome.runtime.lastError.message);
-
-        //  sidepanelPort.postMessage({
-        //    action: 'sign-out',
-        //    status: 'error',
-        //    msg: chrome.runtime.lastError.message
-        //  });
-        //}
       }
     });
 
@@ -204,12 +166,11 @@ chrome.runtime.onConnect.addListener((port) => {
       });
 
       try {
+
         signOut();
-        //if (!result) {
-        //  console.log({logout_error: chrome.runtime.lastError.message})
-        //}
+
       } catch (e) {
-        console.log('Sign-out exception!');
+
         console.error(chrome.runtime?.lastError);
       }
     });
@@ -241,7 +202,6 @@ const record_action = async (request, callback) => {
 
   if (recording) {
 
-    console.log('stop recording - send request to offscreen')
     // If currently recording - stop
     response = await chrome.runtime.sendMessage({
       action: 'stop-recording',
@@ -260,7 +220,6 @@ const record_action = async (request, callback) => {
       targetTabId: request.tabId,
     });
 
-    console.log('start recording - send request to offscreeen');
     // Send the stream ID to the offscreen document to start recording.
     response = await chrome.runtime.sendMessage({
       action: 'start-recording',
@@ -325,7 +284,7 @@ const recvTranscriptionEvents = async () => {
         transcribePort.disconnect();
         transcribePort = undefined;
       } else {
-        console.log(
+        console.error(
           'background - establish transcription tunnel connection failed. status: ' +
             msg.status
         );

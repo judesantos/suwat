@@ -8,18 +8,13 @@ let portTunnel = undefined;
 
 const initTranscriptionMsgChannel = async () => {
   if (portTunnel) {
-    console.log('offscreen - disconnection previous transcription tunnel');
     disconnectTranscriptionMessageTunnel();
   }
 
-  console.log('offscreen - creating transcription tunnel');
-
   portTunnel = chrome.runtime.connect({ name: 'transcribe' });
   portTunnel.onMessage.addListener((msg) => {
-    if (msg.status === 'ready') {
-      console.log('Transcription message tunnel is ready.');
-    } else {
-      console.log({ unhandled_request: msg });
+    if (msg.status !== 'ready') {
+      console.error({ unhandled_request: msg });
     }
   });
 
@@ -43,7 +38,6 @@ const sendTranscriptionData = async (data) => {
 
 const record_start = async (streamId, sendResponse) => {
   const status = await startRecording(streamId, sendTranscriptionData)
-  console.log('offscreen - record_start. Status: ' + status)
   if (status === TRANSCRIBE_STATUS.SUCCESS) {
     // Set offscreen to 'recording' mode
     window.location.hash = 'recording';
@@ -85,30 +79,16 @@ const record_stop = async (sendResponse) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.target === 'offscreen') {
-    console.log({ offscreen: request });
-
     if (request.action === 'start-recording') {
-      console.log('record-start-action');
       record_start(request.streamId, sendResponse);
-
       return true;
     } else if (request.action === 'stop-recording') {
-      console.log('record-stop-action');
       record_stop(sendResponse);
-
       return true;
     } else if (request.action === 'logout') {
       record_stop(sendResponse);
       chrome.storage?.local.remove('dialogue');
-      //setTimeout(() => {
-      //  const msg =
-      //    '\n\nYou have closed suwat.\n\nDiscard current job and Logout?\n\n';
-      //  if (window.confirm(msg)) {
-      //    record_stop(sendResponse);
-      //  }
-      //}, 100);
       return true;
-
     } else if (request.action === 'tab-exists') {
       window.alert('\nSuwat is open in another tab\nClose Suwat in the other tab\n\nTry Again\n\n')
     }

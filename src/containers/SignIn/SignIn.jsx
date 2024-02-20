@@ -8,7 +8,6 @@ class SignInComponent extends Component {
   };
 
   componentDidCatch(error, info) {
-    alert('catch');
     console.error({ error, info });
   }
 
@@ -22,7 +21,6 @@ class SignInComponent extends Component {
 
   login = (e) => {
     e.preventDefault();
-    console.log('login me!!!');
     this.props.login();
   };
 

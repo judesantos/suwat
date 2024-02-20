@@ -76,10 +76,6 @@ const processJob = (data) => {
     } else {
       // Same speaker as the last dialog line.
       // Get the last line from the cache and append content.
-      //if (!line && dialogue.length) {
-      //  line = dialogue.pop();
-      //  line.content += '\n\n'; // new paragraph
-      //}
     }
 
     line.content += (line?.content.length ? ' ' : '') + item.Content;
@@ -92,8 +88,7 @@ const processJob = (data) => {
 
   dialogue = [...dialogue, ...lines];
   const _lines = [...lines];
-  lines = [];
-  console.log({_lines})
+
   return _lines;
 };
 
