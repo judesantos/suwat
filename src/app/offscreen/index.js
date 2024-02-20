@@ -1,6 +1,7 @@
 import {
   startRecording,
   stopRecording,
+  TRANSCRIBE_STATUS
 } from '../../services/transcribe-wsocket.js';
 
 let portTunnel = undefined;
@@ -41,23 +42,42 @@ const sendTranscriptionData = async (data) => {
 };
 
 const record_start = async (streamId, sendResponse) => {
-  if (startRecording(streamId, sendTranscriptionData)) {
+  const status = await startRecording(streamId, sendTranscriptionData)
+  console.log('offscreen - record_start. Status: ' + status)
+  if (status === TRANSCRIBE_STATUS.SUCCESS) {
     // Set offscreen to 'recording' mode
     window.location.hash = 'recording';
     // Setup tunnel to our service-worker to relay transcription data.
     await initTranscriptionMsgChannel();
     sendResponse({ status: 'recording' });
   } else {
-    sendResponse({ status: 'error' });
+    if (TRANSCRIBE_STATUS.FOREGROUND_INPUT_DEVICE_ERROR) {
+      sendResponse({
+        status: 'error',
+        error: status,
+        message: 'Microphone not available!'
+      });
+    } else {
+      sendResponse({
+        status: 'error',
+        error: status,
+        message: 'Setup recording failed!'
+      });
+    }
   }
 };
 
 const record_stop = async (sendResponse) => {
-  if (stopRecording()) {
+  const status = stopRecording()
+  if (status === TRANSCRIBE_STATUS.SUCCESS) {
     window.location.hash = '';
     sendResponse({ status: 'stopped' });
   } else {
-    sendResponse({ status: 'error' });
+      sendResponse({
+        status: 'error',
+        error: status,
+        message: 'Stop recording failed!'
+      });
   }
 
   await disconnectTranscriptionMessageTunnel();

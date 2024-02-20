@@ -26,7 +26,8 @@
     "tabCapture",
     "offscreen",
     "identity",
-    "notifications"
+    "notifications",
+    "audioCapture"
   ],
   "host_permissions": [
     "*://suwat.com/*"

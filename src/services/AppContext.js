@@ -96,6 +96,7 @@ class AppCtxProvider extends Component {
 
     if (this.state.selectedMenuItem && !this.isAuthorized()) {
       // Logout
+      const port = chrome.runtime.connect({ name: 'sidepanel' });
       return;
     } 
 
@@ -190,6 +191,8 @@ class AppCtxProvider extends Component {
         // update states
         state = 'Record';
         this.updateState('recording', false);
+      } else {
+        alert(response.message)
       }
 
       this.updateState('recordingState', state);

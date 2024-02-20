@@ -4,6 +4,14 @@ import { fromUtf8, toUtf8 } from '@aws-sdk/util-utf8-node';
 
 import axios from 'axios';
 
+const TRANSCRIBE_STATUS = {
+  SUCCESS: 0,
+  FOREGROUND_SESSION_ERROR: 1,
+  BACKGROUND_SESSION_ERROR: 2,
+  FOREGROUND_INPUT_DEVICE_ERROR: 3,
+  BACKGROUND_INPUT_DEVICE_ERROR: 4
+};
+
 // UPDATE THIS ACCORDING TO YOUR BACKEND:
 //const backendUrl = "http://localhost:8080/aws-signature";
 const backendUrl = "https://m9ozmudw1d.execute-api.us-east-1.amazonaws.com/Prod/preSignedURL/";
@@ -230,7 +238,7 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
   } catch (e) {
     console.log('startRecording create background stream exception:');
     console.error(e);
-    return false;
+    return TRANSCRIBE_STATUS.BACKGROUND_INPUT_DEVICE_ERROR;
   }
 
   try {
@@ -253,10 +261,11 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
   } catch (e) {
     console.log('startRecording create foreground stream exception:');
     console.error(e);
-    return false;
+    stopRecording(); // Stop background recording
+    return TRANSCRIBE_STATUS.FOREGROUND_INPUT_DEVICE_ERROR;
   }
 
-  return true;
+  return TRANSCRIBE_STATUS.SUCCESS;
 };
 
 /**
@@ -264,17 +273,13 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
  * @returns
  */
 const stopRecording = () => {
+
   try {
+
     if (tabAudioStream) {
       tabAudioStream.stop();
       tabAudioStream.destroy();
       tabAudioStream = undefined;
-    }
-
-    if (desktopMicStream) {
-      desktopMicStream.stop();
-      desktopMicStream.destroy();
-      desktopMicStream = undefined;
     }
 
     if (socketTabAudioStream) {
@@ -286,6 +291,20 @@ const stopRecording = () => {
       socketTabAudioStream = undefined;
     }
 
+  } catch (e) {
+    console.log('stopRecording background exception:');
+    console.error(e);
+    return TRANSCRIBE_STATUS.BACKGROUND_SESSION_ERROR;
+  }
+
+  try {
+
+    if (desktopMicStream) {
+      desktopMicStream.stop();
+      desktopMicStream.destroy();
+      desktopMicStream = undefined;
+    }
+
     if (socketDesktopMicStream) {
       // send empty audio frame to terminate transcription
       console.log('sending close transcribe event for socketDesktopMicStream');
@@ -295,12 +314,12 @@ const stopRecording = () => {
       socketDesktopMicStream = undefined;
     }
   } catch (e) {
-    console.log('stopRecording exception:');
+    console.log('stopRecording foreground exception:');
     console.error(e);
-    return false;
+    return TRANSCRIBE_STATUS.FOREGROUND_SESSION_ERROR;
   }
 
-  return true;
+  return TRANSCRIBE_STATUS.SUCCESS;
 };
 
-export { startRecording, stopRecording };
+export { startRecording, stopRecording, TRANSCRIBE_STATUS };
