@@ -224,17 +224,6 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
     //
     tabAudioStream = await createAudioStream(streamId);
 
-    console.log('creating background stream');
-
-    await createSocketStreamer(
-      tabAudioStream,
-      (data) => {
-        return (socketTabAudioStream = new WebSocket(data.preSignedURL));
-      },
-      returnTranscriptionDataCB,
-      `brw`
-    );
-    console.log('created background stream');
   } catch (e) {
     console.log('startRecording create background stream exception:');
     console.error(e);
@@ -246,24 +235,36 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
     //
     desktopMicStream = await createAudioStream();
 
-    console.log('creating foreground stream');
-
-    await createSocketStreamer(
-      desktopMicStream,
-      (data) => {
-        return (socketDesktopMicStream = new WebSocket(data.preSignedURL));
-      },
-      returnTranscriptionDataCB,
-      `dsk`
-    );
-
-    console.log('created foreground stream');
   } catch (e) {
     console.log('startRecording create foreground stream exception:');
     console.error(e);
-    stopRecording(); // Stop background recording
     return TRANSCRIBE_STATUS.FOREGROUND_INPUT_DEVICE_ERROR;
   }
+
+  console.log('creating background stream');
+
+  await createSocketStreamer(
+    tabAudioStream,
+    (data) => {
+      return (socketTabAudioStream = new WebSocket(data.preSignedURL));
+    },
+    returnTranscriptionDataCB,
+    `brw`
+  );
+
+  console.log('created background stream');
+  console.log('creating foreground stream');
+
+  await createSocketStreamer(
+    desktopMicStream,
+    (data) => {
+      return (socketDesktopMicStream = new WebSocket(data.preSignedURL));
+    },
+    returnTranscriptionDataCB,
+    `dsk`
+  );
+
+  console.log('created foreground stream');
 
   return TRANSCRIBE_STATUS.SUCCESS;
 };
