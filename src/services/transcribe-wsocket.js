@@ -9,7 +9,8 @@ const TRANSCRIBE_STATUS = {
   FOREGROUND_SESSION_ERROR: 1,
   BACKGROUND_SESSION_ERROR: 2,
   FOREGROUND_INPUT_DEVICE_ERROR: 3,
-  BACKGROUND_INPUT_DEVICE_ERROR: 4
+  BACKGROUND_INPUT_DEVICE_ERROR: 4,
+  SOCKET_STREAM_ERROR: 5
 };
 
 // UPDATE THIS ACCORDING TO YOUR BACKEND:
@@ -225,9 +226,11 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
     tabAudioStream = await createAudioStream(streamId);
 
   } catch (e) {
+
     console.log('startRecording create background stream exception:');
     console.error(e);
     return TRANSCRIBE_STATUS.BACKGROUND_INPUT_DEVICE_ERROR;
+
   }
 
   try {
@@ -236,35 +239,51 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
     desktopMicStream = await createAudioStream();
 
   } catch (e) {
+
+    stopRecording();
+
     console.log('startRecording create foreground stream exception:');
     console.error(e);
     return TRANSCRIBE_STATUS.FOREGROUND_INPUT_DEVICE_ERROR;
+
   }
 
   console.log('creating background stream');
 
-  await createSocketStreamer(
-    tabAudioStream,
-    (data) => {
-      return (socketTabAudioStream = new WebSocket(data.preSignedURL));
-    },
-    returnTranscriptionDataCB,
-    `brw`
-  );
+  try {
 
-  console.log('created background stream');
-  console.log('creating foreground stream');
+    await createSocketStreamer(
+      tabAudioStream,
+      (data) => {
+        return (socketTabAudioStream = new WebSocket(data.preSignedURL));
+      },
+      returnTranscriptionDataCB,
+      `brw`
+    );
 
-  await createSocketStreamer(
-    desktopMicStream,
-    (data) => {
-      return (socketDesktopMicStream = new WebSocket(data.preSignedURL));
-    },
-    returnTranscriptionDataCB,
-    `dsk`
-  );
+    console.log('created background stream');
+    console.log('creating foreground stream');
 
-  console.log('created foreground stream');
+    await createSocketStreamer(
+      desktopMicStream,
+      (data) => {
+        return (socketDesktopMicStream = new WebSocket(data.preSignedURL));
+      },
+      returnTranscriptionDataCB,
+      `dsk`
+    );
+
+    console.log('created foreground stream');
+
+    } catch(e) {
+
+      stopRecording()
+
+      console.log('startRecording create foreground stream exception:');
+      console.error(e);
+
+      return TRANSCRIBE_STATUS.SOCKET_STREAM_ERROR;
+    }
 
   return TRANSCRIBE_STATUS.SUCCESS;
 };
