@@ -7,8 +7,9 @@ import {
   faPencilAlt,
   faTrashCan,
   faWrench,
-  faRecordVinyl,
-  faStop
+  faPlay,
+  faStop,
+
 } from '@fortawesome/free-solid-svg-icons';
 
 import './MenuPanel.css';
@@ -35,7 +36,7 @@ class MenuPanelComponent extends Component {
               <FontAwesomeIcon icon={faStop} className="Icon Play"/>
             }
             {!this.context.recording && 
-              <FontAwesomeIcon icon={faRecordVinyl} className="Icon" />
+              <FontAwesomeIcon icon={faPlay} className="Icon" />
             }
           </div>
         </div>
