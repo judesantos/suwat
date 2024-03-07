@@ -1,20 +1,16 @@
 import React, { Component } from 'react';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faCheck,
-  faFloppyDisk,
-  faPencilAlt,
-  faTrashCan,
-  faWrench,
-  faPlay,
-  faStop,
-
-} from '@fortawesome/free-solid-svg-icons';
+import PlayCircle from '@mui/icons-material/PlayCircleOutlineOutlined';
+import StopCircle from '@mui/icons-material/StopCircleOutlined';
+//import Edit from '@mui/icons-material/EditOutlined';
+import Save from '@mui/icons-material/SaveOutlined';
+import Delete from '@mui/icons-material/DeleteOutlined';
+//import Settings from '@mui/icons-material/SettingsOutlined';
+import Check from '@mui/icons-material/Check';
 
 import './MenuPanel.css';
 
-import AppContext from '../../services/AppContext';
+import AppContext from '../../services/app-context';
 
 class MenuPanelComponent extends Component {
   static contextType = AppContext;
@@ -22,24 +18,7 @@ class MenuPanelComponent extends Component {
   render() {
     return (
       <>
-        <div
-          className="MenuItem"
-          onClick={() => this.context.toggleRecording()}
-        >
-          {this.context.selectedMenuItem === 1 && (
-            <div className="Checked">
-                <FontAwesomeIcon icon={faCheck} className="checkIcon" />
-            </div>
-          )}
-          <div className="MenuItemText">
-            {this.context.recording && 
-              <FontAwesomeIcon icon={faStop} className="Icon Play"/>
-            }
-            {!this.context.recording && 
-              <FontAwesomeIcon icon={faPlay} className="Icon" />
-            }
-          </div>
-        </div>
+        {/*
         <div
           className="MenuItem"
           onClick={() => {
@@ -50,13 +29,14 @@ class MenuPanelComponent extends Component {
         >
           {this.context.selectedMenuItem === 1 && (
             <div className="Checked">
-                <FontAwesomeIcon icon={faCheck} className="checkIcon" />
+              <Check className="checkIcon" />
             </div>
           )}
           <div className="MenuItemText">
-            <FontAwesomeIcon icon={faPencilAlt} className="Icon" />
+            <Edit fontSize='small'/>
           </div>
         </div>
+        */}
         <div
           className="MenuItem"
           onClick={() => {
@@ -67,11 +47,29 @@ class MenuPanelComponent extends Component {
         >
           {this.context.selectedMenuItem === 2 && (
             <div className="Checked">
-                <FontAwesomeIcon icon={faCheck} className="checkIcon" />
+              <Check className="checkIcon" />
             </div>
           )}
           <div className="MenuItemText">
-            <FontAwesomeIcon icon={faFloppyDisk} className="Icon" />
+            <Save fontSize='small'/>
+          </div>
+        </div>
+        <div
+          className="MenuItem"
+          onClick={() => this.context.toggleRecording()}
+        >
+          {this.context.selectedMenuItem === 1 && (
+            <div className="Checked">
+              <Check className="checkIcon" />
+            </div>
+          )}
+          <div className="MenuItemText">
+            {this.context.recording && 
+              <StopCircle fontSize='small' className='Play'/>
+            }
+            {!this.context.recording && 
+              <PlayCircle fontSize='small' className=''/>
+            }
           </div>
         </div>
         <div
@@ -84,13 +82,14 @@ class MenuPanelComponent extends Component {
         >
           {this.context.selectedMenuItem === 3 && (
             <div className="Checked">
-                <FontAwesomeIcon icon={faCheck} className="checkIcon" />
+              <Check className="checkIcon" />
             </div>
           )}
           <div className="MenuItemText">
-            <FontAwesomeIcon icon={faTrashCan} className="Icon" />
+            <Delete fontSize='small'/>
           </div>
         </div>
+        {/*
         <div
           className="MenuItem"
           onClick={() => {
@@ -100,13 +99,14 @@ class MenuPanelComponent extends Component {
         >
           {this.context.selectedMenuItem === 4 && (
             <div className="Checked">
-                <FontAwesomeIcon icon={faCheck} className="checkIcon" />
+              <Check className="checkIcon" />
             </div>
           )}
           <div className="MenuItemText">
-            <FontAwesomeIcon icon={faWrench} className="Icon" />
+            <Settings fontSize='small'/>
           </div>
         </div>
+        */}
       </>
     );
   }

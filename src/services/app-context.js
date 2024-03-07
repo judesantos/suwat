@@ -1,6 +1,6 @@
 import { Component, createContext } from 'react';
 import * as transcript from './transcript.js';
-import icon34 from '../../public/assets/img/icon-34.png';
+//import icon34 from '../../public/assets/img/icon-34.png';
 
 const RECORD_IDLE_TIMEOUT = 1000 * 60 * 0.5; // 30 seconds
 const AppContext = createContext();
@@ -15,6 +15,16 @@ class AppCtxProvider extends Component {
     recording: false,
     popupMenuItem: false,
     selectedMenuItem: 0,
+    dialog: {
+      type: 'confirm',
+      open: false,
+      title: '',
+      message: '',
+      lblBtnConfirm: 'Yes',
+      lblBtnCancel: 'Cancel',
+      confirm: () => {},
+      cancel: () => {}
+    }
   };
 
   /**
@@ -57,17 +67,13 @@ class AppCtxProvider extends Component {
    * Hook - on unload
    */
   componentWillUnmount = () => {
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: icon34,
-      silent: false,
-      message: "AppContext componentWillUnmount: Do you want to exit without saving work?",
-    });
+    this.showModalDialog(
+      "AppContext componentWillUnmount: Do you want to exit without saving work?",
+    );
   };
 
   stopRecording = () => {
     if (this.state.recordingState.toLowerCase() === 'stop') {
-      //this.updateState('recordingState', !this.state.recordingState);
       this.updateState('recording', !this.state.recording);
     }
   };
@@ -75,6 +81,69 @@ class AppCtxProvider extends Component {
   isAuthorized = async () => {
     const cookie = await chrome.cookies.get({url:'http://suwat.com', name:'token'});
     return cookie ? true : false;
+  }
+
+  /**
+   * 
+   */
+  cleanUp = async () => {
+    // clear from db
+    console.log('cleanup')
+    await chrome.storage.local.remove('dialogue');
+    // clear storage model
+    console.log('delete transcript')
+    transcript.clear();
+    // clear local cache
+    this.updateState('lines', []);
+    this.updateState('selectedMenuItem', 0);
+  }
+
+  showAlertDialog = (title, message) => {
+    let dlg = {
+      type: 'alert',
+      open: true,
+      title,
+      message,
+    }
+    dlg.confirm = ()=>{};
+    // Update!
+    this.updateState(state => {
+      state.dialog = dlg;
+    });
+
+  }
+
+  showModalDialog = (title, message, confirmCb = undefined, cancelCb = undefined) => {
+    let dlg = {
+      type: 'confirm',
+      open: true,
+      title,
+      message,
+      lblBtnConfirm: 'ok',
+      lblBtnCancel: 'cancel'
+    }
+    dlg.confirm = confirmCb ? confirmCb : ()=>{};
+    dlg.cancel = cancelCb ? cancelCb : ()=>{};
+    // Update!
+    this.updateState(state => {
+      state.dialog = dlg;
+    });
+  }
+  
+  showEditDialog = (lineId) => {
+    let dlg = {
+      type: 'edit',
+      open: true,
+      lblBtnConfirm: 'Save Changes',
+      lblBtnCancel: 'cancel',
+      lineId
+    }
+    dlg.confirm = ()=>{};
+    dlg.cancel = ()=>{};
+    // Update!
+    this.updateState(state => {
+      state.dialog = dlg;
+    });
   }
 
   /**
@@ -94,37 +163,41 @@ class AppCtxProvider extends Component {
         break;
       case 3: // delete
         this.updateState('selectedMenuItem', 0)
-        if (this.state.lines.length && window.confirm('Delete current job?')) {
-          // clear from db
-          await chrome.storage.local.remove('dialogue');
-          // clear storage model
-          transcript.clear();
-          // clear local cache
-          this.updateState('lines', []);
-          this.updateState('selectedMenuItem', 0);
+        if (this.state.lines.length) { 
+          this.showModalDialog(
+            'Delete Message?',
+            'Transcript will be deleted permanently.',
+            this.cleanUp
+          );
         }
         break;
       case 2: // save
         this.updateState('selectedMenuItem', 0)
-        await chrome.storage.local.get('dialogue', (obj) => {
-          if (obj?.dialogue.length) {
-            let lines = []
-            obj.dialogue.forEach(item => {
-              lines.push(item.speakerId + ': ' + item.content) 
+        this.showModalDialog(
+          'Save transcript?',
+          'Transcript will be saved to a file.',
+          async () => {
+            await chrome.storage.local.get('dialogue', (obj) => {
+              if (obj?.dialogue.length) {
+                let lines = []
+                obj.dialogue.forEach(item => {
+                  lines.push(item.speakerId + ' [' + new Date(item.timestamp).toLocaleTimeString() +']: ' + item.content) 
+                });
+                const data_string = lines.join('\n')
+                const blob = new Blob([data_string], {type: 'text/plain'})
+                const a = document.createElement('a')
+                a.style.display = 'none'
+                a.href = window.URL.createObjectURL(blob)
+                const date = new Date()
+                a.download = 'transcript_' + date.toISOString() + '.txt'
+                document.body.appendChild(a);
+                a.click()
+                URL.revokeObjectURL(a.href)
+                document.body.removeChild(a)
+              }
             });
-            const data_string = lines.join('\n')
-            const blob = new Blob([data_string], {type: 'text/plain'})
-            const a = document.createElement('a')
-            a.style.display = 'none'
-            a.href = window.URL.createObjectURL(blob)
-            const date = new Date()
-            a.download = 'transcript_' + date.toISOString() + '.txt'
-            document.body.appendChild(a);
-            a.click()
-            URL.revokeObjectURL(a.href)
-            document.body.removeChild(a)
           }
-        });
+        );
         break;
       case 1: // edit
         this.updateState('selectedMenuItem', 0)
@@ -176,13 +249,11 @@ class AppCtxProvider extends Component {
         state = 'Record';
         this.updateState('recording', false);
       } else {
-        chrome.notifications.create({
-          type: 'basic',
-          iconUrl: icon34,
-          silent: false,
-          title: response.message,
-          message: "Check settings and permissions",
-        });
+        this.showAlertDialog(
+          'Record failed!',
+          response.message,
+          false
+        );
       }
 
       this.updateState('recordingState', state);
@@ -191,6 +262,13 @@ class AppCtxProvider extends Component {
   };
 
   updateState = (prop, value) => {
+    if (prop instanceof Function) {
+      this.setState((state) => {
+        prop(state);
+        return state;
+      })
+      return;
+    }
     this.setState((state) => {
       state[prop] = value;
       return state;
@@ -215,10 +293,12 @@ class AppCtxProvider extends Component {
           recording: this.state.recording,
           popupMenuItem: this.state.popupMenuItem,
           selectedMenuItem: this.state.selectedMenuItem,
+          dialog: this.state.dialog,
           setSelectedMenuItem: this.setSelectedMenuItem,
           setPopupItem: this.setPopupItem,
           toggleRecording: this.toggleRecording,
           updateState: this.updateState,
+          showEditDialog: this.showEditDialog
         }}
       >
         {this.props.children}

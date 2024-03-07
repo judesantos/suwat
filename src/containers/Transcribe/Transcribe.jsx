@@ -3,8 +3,20 @@ import HeaderPanelComponent from '../HeaderPanel/HeaderPanel';
 
 import './Transcribe.css';
 
-//import { AppCtxConsumer } from '../../services/AppContext';
-import AppContext from '../../services/AppContext';
+import AppContext from '../../services/app-context';
+import ModalDialog from '../ModalDialog/ModalDialog';
+
+class TranscribePanel extends Component {
+
+  render() {
+    return (
+      <>
+        <TranscribeComponent/>
+        <ModalDialog/>
+      </>
+    )
+  }
+}
 
 class TranscribeComponent extends Component {
   static contextType = AppContext;
@@ -15,7 +27,11 @@ class TranscribeComponent extends Component {
     if (e.type === 'click' && this.context.popupMenuItem) {
       this.context.setPopupItem(!this.context.popupMenuItem);
     }
-  };
+  }
+
+  onLineSelected = (lineId) => {
+    this.context.showEditDialog(lineId);
+  }
 
   scrollToTop = () => {
     const scroll =
@@ -38,65 +54,67 @@ class TranscribeComponent extends Component {
 
     return (
       <>
-        {context && (
-          <>
-            <div
-              className="Transcription"
-              ref={this.refSpeakerLines}
-              onClick={this.onMouseClick}
-            >
-              <table className="SpeakerLines">
-                <tbody>
-                  {context.lines.length > 0 &&
-                    context.lines.map((line) => (
-                      <tr key={line?.id} className="SpeakerLine">
-                        {line.tag === 'brw' && (
-                          <td className="Bubble Bubble-background SpeakerStatement">
-                            <div
-                              className="SpeakerId"
-                              style={{ color: line.color }}
-                            >
-                              {line?.speakerId}
-                            </div>
-                            {line?.content
-                              ?.split('\n')
-                              ?.map((para, idx) =>
-                                para.length ? <p>{para}</p> : <></>
-                              )}
-                            <div className="time">
-                              {new Date(line.timestamp).toLocaleTimeString()}
-                            </div>
-                          </td>
-                        )}
-                        {line.tag === 'dsk' && (
-                          <td className="Bubble Bubble-foreground SpeakerStatement">
-                            <div
-                              className="SpeakerId"
-                              style={{ color: line.color }}
-                            >
-                              {line?.speakerId}
-                            </div>
-                            {line?.content
-                              ?.split('\n')
-                              ?.map((para, idx) =>
-                                para.length ? <p>{para}</p> : <></>
-                              )}
-                            <div className="time">
-                              {new Date(line.timestamp).toLocaleTimeString()}
-                            </div>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-            <HeaderPanelComponent className="Panel" />
-          </>
-        )}
+        <div
+          className="Transcription"
+          ref={this.refSpeakerLines}
+          onClick={this.onMouseClick}
+        >
+          <table className="SpeakerLines">
+            <tbody>
+              {context.lines.length > 0 &&
+                context.lines.map((line) => (
+                  <tr key={line?.id} className="SpeakerLine">
+                    {line.tag === 'brw' && (
+                      <td 
+                        className="Bubble Bubble-background SpeakerStatement"
+                        onClick={() => this.onLineSelected(line.id)}
+                      >
+                        <div
+                          className="SpeakerId"
+                          style={{ color: line.color }}
+                        >
+                          {line?.speakerId}
+                        </div>
+                        {line?.content
+                          ?.split('\n')
+                          ?.map((para, idx) =>
+                            para.length ? <p key={idx}>{para}</p> : <></>
+                          )}
+                        <div className="time">
+                          {new Date(line.timestamp).toLocaleTimeString()}
+                        </div>
+                      </td>
+                    )}
+                    {line.tag === 'dsk' && (
+                      <td 
+                        className="Bubble Bubble-foreground SpeakerStatement"
+                        onClick={() => this.onLineSelected(line)}
+                      >
+                        <div
+                          className="SpeakerId"
+                          style={{ color: line.color }}
+                        >
+                          {line?.speakerId}
+                        </div>
+                        {line?.content
+                          ?.split('\n')
+                          ?.map((para, idx) =>
+                            para.length ? <p key={idx}>{para}</p> : <></>
+                          )}
+                        <div className="time">
+                          {new Date(line.timestamp).toLocaleTimeString()}
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+        <HeaderPanelComponent className="Panel" />
       </>
     );
   }
 }
 
-export default TranscribeComponent;
+export default TranscribePanel;

@@ -31,19 +31,25 @@
   "host_permissions": [
     "*://suwat.com/*"
   ],
-  "action": {
-    "default_title": "suwat",
-    "default_icon": "icon-34.png"
-  },
   "web_accessible_resources": [
     {
-      "resources": ["content.styles.css", "icon-128.png", "icon-34.png"],
+      "resources": [
+        "styles.css",
+        "icon-128.png", 
+        "icon-34.png", 
+        "*.html"
+      ],
       "matches": []
     }
   ],
-  "devtools_page": "devtools.html",
-  "options_page": "options.html",
+  "action": {
+    "default_panel": "sidepanel.html",
+    "default_title": "suwat",
+    "default_icon": "icon-34.png"
+  },
   "background": {
     "service_worker": "background.bundle.js"
-  }
+  },
+  "devtools_page": "devtools.html",
+  "options_page": "options.html"
 }

@@ -23,13 +23,13 @@ body {
   /*
   bottom: 0;
   width: 100%;
+  background-color: #f3f3f4;
   */
   border-collapse: collapse;
   /**/
   width: calc(100%);
   padding-bottom: 5px;
 
-  background-color: #f3f3f4;
 }
 
 .SpeakerLines td {
@@ -61,6 +61,7 @@ body {
 .SpeakerStatement {
   color: rgb(74, 73, 73);
   width: auto;
+  cursor: pointer;
 }
 
 .SpeakerStatement .time {
@@ -79,8 +80,8 @@ body {
   display: block;
   vertical-align: top;
   */
+  border: 0.5px solid rgb(226, 226, 226);
   clear: both;
-  border: 0.5px solid rgb(177, 176, 176);
 }
 
 .Bubble::before {
@@ -100,19 +101,29 @@ body {
 }
 
 .Bubble-background {
+  /*
   background-color: #ffffff;
+  */
   border-radius: 0 40px 20px 20px;
   float: left;
   margin: 5px 17px;
+  background-color: #f8f6f6;
 }
 
 .Bubble-background::before {
+  /*
   background-color: #ffffff;
+  */
+  background-color: #f8f6f6;
   left: -4px;
   top: -1px;
   transform: rotate(45deg) skew(-45deg) translate(-1px, 0);
+  /*
   border-left: 0.5px solid rgb(177, 176, 176);
   border-bottom: 0.5px solid rgb(177, 176, 176);
+  */
+  border-left: 0.5px solid rgb(226, 226, 226);
+  border-bottom: 0.5px solid rgb(226, 226, 226);
 }
 
 .Bubble-foreground {
@@ -131,8 +142,12 @@ body {
   right: -4.5px;
   top: -0.5px;
   transform: rotate(0deg) skew(-45deg) translate(4px, 0);
+  /*
   border-right: 0.5px solid rgb(177, 176, 176);
   border-top: 0.5px solid rgb(177, 176, 176);
+  */
+  border-right: 0.5px solid rgb(226, 226, 226);
+  border-top: 0.5px solid rgb(226, 226, 226);
 }
 
 .SpeakerStatement p {

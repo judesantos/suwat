@@ -11,10 +11,10 @@
 }
 
 .MenuItem {
-  margin: auto;
   padding: 8px;
   border-radius: 48px;
   /*
+  margin: auto;
   padding: 8px 12px;
   width: 25%;
   color: black;
@@ -37,11 +37,21 @@
   float: right;
   text-align: right;
   */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  width:auto;
+  height: auto;
 }
 
 .Icon {
   height: 24px;
   width: 24px;
+}
+
+.Player {
+  font-weight: lighter;
 }
 
 .Play {

@@ -1,0 +1,94 @@
+.Modal {
+  position: fixed; /* Stay in place */
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,0.4);
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Enable scroll if needed */
+  -webkit-transition: opacity 400ms ease-in;
+  -moz-transition: opacity 400ms ease-in;
+  transition: opacity 400ms ease-in;
+}
+
+.ModalWindow {
+  position: relative;
+  top: 25%;
+  width: 85%;
+  padding: 3%;
+  border-color: black;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.EditWindow {
+  top: 10%;
+  min-height: 15%;
+}
+
+
+.ModalTitle {
+  font-weight:bolder;
+  font-size: 18px;
+  flex-direction: row;
+  padding: 2%;
+}
+
+.ModalMessage {
+  justify-content: flex-start;
+  display: inline-block;
+  flex-direction: row;
+  width: 100%;
+  padding: 2%;
+}
+
+.EditMessage {
+ height: 60%;
+}
+
+.AlertMessage {
+  background-color: rgb(234, 173, 173);
+}
+
+.ModalAction {
+  position: absolute;
+  align-self: flex-end;
+  bottom: 0;
+  flex-direction: row;
+  padding: 2%;
+}
+
+.EditAction {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.AlertAction {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+Button {
+  font-weight: 600;
+}
+
+.AlertAction Button {
+  color: red;
+  font-weight: bolder;
+}
+
+.TextArea {
+  width: 100%;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  display: inline-block;
+  white-space: normal;
+}

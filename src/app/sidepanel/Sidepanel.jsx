@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 
 import GreetingComponent from '../../containers/Greetings/Greetings.jsx';
 import SignInComponent from '../../containers/SignIn/SignIn.jsx';
-import TranscribeComponent from '../../containers/Transcribe/Transcribe.jsx';
 
-import icon34 from '../../../public/assets/img/icon-34.png';
 import './Sidepanel.css';
 
-import { AppCtxProvider } from '../../services/AppContext.js';
+import { AppCtxProvider } from '../../services/app-context.js';
+import TranscribePanel from '../../containers/Transcribe/Transcribe.jsx';
 
 const Sidepanel = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -25,12 +24,6 @@ const Sidepanel = () => {
           if (msg.status === 'success') {
             // Hide login form and go to main screen.
             setLoggedIn(true);
-            chrome.notifications.create({
-              type: 'basic',
-              iconUrl: icon34,
-              silent: false,
-              message: "Welcome to Suwat!",
-            });
           } else {
             console.error('Login failed! ' + msg.msg);
           }
@@ -77,7 +70,7 @@ const Sidepanel = () => {
     <AppCtxProvider>
       <div className="App">
         <GreetingComponent />
-        {loggedIn ? <TranscribeComponent /> : <SignInComponent login={login} />}
+        {loggedIn ? <TranscribePanel /> : <SignInComponent login={login} />}
       </div>
     </AppCtxProvider>
   );
