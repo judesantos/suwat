@@ -1,0 +1,62 @@
+.EditWindow {
+  position: relative;
+  top: 10%;
+  width: 85%;
+  padding: 3%;
+  border-color: black;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.4s, slideIn 0.3s linear;
+}
+
+.EditTitle {
+  font-weight:bolder;
+  font-size: 18px;
+  flex-direction: row;
+  padding: 2%;
+}
+
+.EditMessage {
+  justify-content: center;
+  display: inline-block;
+  flex-direction: row;
+  width: 100%;
+  padding: 3% 2%;
+  height: 60%;
+}
+
+.EditAction {
+  align-self: flex-end;
+  flex-direction: row;
+}
+
+.TextAreaContainer {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-right: 10px;
+  min-height: 50px; /* Adjust height as needed */
+  border: 1px solid #ccc; /* Optional: Add border */
+  border-radius: 5px;
+  padding: 4px;
+}
+
+.TextAreaContent {
+  width: 100%;
+  padding: 10px;
+  min-height: 100%;
+  outline: none;
+  white-space: pre-wrap;
+
+  resize: none;
+  overflow-y: hidden;
+  box-sizing: border-box;
+
+  border: none;
+}
+
+.RadioGroup {
+  margin-top: 5%;
+}

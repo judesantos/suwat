@@ -58,7 +58,9 @@ class AppCtxProvider extends Component {
         // restart idle timer
         this.resetTimeout();
         // update lines
-        this.setState(state => ({...state, lines: [...state.lines, ...request.data]}))
+        this.updateState((state) => {
+          state.lines = [...state.lines, ...request.data];
+        })
       }
     });
   };
@@ -130,13 +132,14 @@ class AppCtxProvider extends Component {
     });
   }
   
-  showEditDialog = (lineId) => {
+  showEditDialog = (lineId, which) => {
     let dlg = {
       type: 'edit',
       open: true,
-      lblBtnConfirm: 'Save Changes',
+      lblBtnConfirm: 'Save',
       lblBtnCancel: 'cancel',
-      lineId
+      lineId,
+      which
     }
     dlg.confirm = ()=>{};
     dlg.cancel = ()=>{};
@@ -156,6 +159,8 @@ class AppCtxProvider extends Component {
       chrome.runtime.connect({ name: 'sidepanel' });
       return;
     } 
+
+    console.log('componentUpdate: ' + this.state.selectedMenuItem)
 
     switch (this.state.selectedMenuItem) {
       case 4: // settings
@@ -177,25 +182,28 @@ class AppCtxProvider extends Component {
           'Save transcript?',
           'Transcript will be saved to a file.',
           async () => {
-            await chrome.storage.local.get('dialogue', (obj) => {
-              if (obj?.dialogue.length) {
-                let lines = []
-                obj.dialogue.forEach(item => {
-                  lines.push(item.speakerId + ' [' + new Date(item.timestamp).toLocaleTimeString() +']: ' + item.content) 
-                });
-                const data_string = lines.join('\n')
-                const blob = new Blob([data_string], {type: 'text/plain'})
-                const a = document.createElement('a')
-                a.style.display = 'none'
-                a.href = window.URL.createObjectURL(blob)
-                const date = new Date()
-                a.download = 'transcript_' + date.toISOString() + '.txt'
-                document.body.appendChild(a);
-                a.click()
-                URL.revokeObjectURL(a.href)
-                document.body.removeChild(a)
-              }
-            });
+            if (this.state.lines.length) {
+              let _lines = [];
+              let line = undefined;
+              this.state.lines.forEach(item => {
+                
+                line =item.speakerId + ' [' + new Date(item.timestamp).toLocaleTimeString() +']: ' + item.content; 
+                line = line.replace(/^\s*[\r\n]/gm, '');
+                if (line && line.length)
+                  _lines.push(line);
+              });
+              const data_string = _lines.join('\n')
+              const blob = new Blob([data_string], {type: 'text/plain'})
+              const a = document.createElement('a')
+              a.style.display = 'none'
+              a.href = window.URL.createObjectURL(blob)
+              const date = new Date()
+              a.download = 'transcript_' + date.toISOString() + '.txt'
+              document.body.appendChild(a);
+              a.click()
+              URL.revokeObjectURL(a.href)
+              document.body.removeChild(a)
+            }
           }
         );
         break;

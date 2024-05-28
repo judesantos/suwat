@@ -1,4 +1,3 @@
-
 .Modal {
   position: fixed; /* Stay in place */
   display: flex;
@@ -6,13 +5,27 @@
   align-items: start;
   top: 0;
   right: 0;
-  bottom: 0;
-  left: 0;
   background: rgba(0,0,0,0.4);
   width: 100%;
   height: 100%;
-  overflow: auto; /* Enable scroll if needed */
   -webkit-transition: opacity 400ms ease-in;
   -moz-transition: opacity 400ms ease-in;
-  transition: opacity 400ms ease-in;
+  z-index: 1;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateY(100px);
+    animation-timing-function: ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }

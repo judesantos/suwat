@@ -1,5 +1,6 @@
 // ModalDialog.js
 import React, { Component } from 'react';
+import './Modal.css'
 import './ModalDialog.css';
 
 import Button from '@mui/material/Button';
@@ -14,6 +15,7 @@ class ModalDialog extends Component {
     this.context.updateState((state) => {
       state.dialog.open = false;
     })
+    //
   }
 
   render() {
@@ -75,9 +77,7 @@ class ConfirmDialog extends Component {
           {this.props.title}  
         </div>
         <div className="ModalMessage">
-          <div className='TextArea'>
             {this.props.message}
-          </div>
         </div>
         <div className='ModalAction'>
           <Button onClick={() => {

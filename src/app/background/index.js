@@ -231,7 +231,8 @@ const record_action = async (request, callback) => {
       // Setup listener to transfer transcription chunks through service-worker,
       // then the sidepanel
       await recvTranscriptionEvents();
-    } 
+    }
+    
     // Send interim status to command request source - popup
     callback(response);
   }

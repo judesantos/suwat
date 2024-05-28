@@ -11,8 +11,8 @@ class TranscribePanel extends Component {
   render() {
     return (
       <>
-        <TranscribeComponent/>
         <ModalDialog/>
+        <TranscribeComponent/>
       </>
     )
   }
@@ -20,6 +20,13 @@ class TranscribePanel extends Component {
 
 class TranscribeComponent extends Component {
   static contextType = AppContext;
+  
+  constructor(props) {
+    super(props);
+    this.state = {
+      lines: []
+    }
+  }
 
   refSpeakerLines = createRef();
 
@@ -29,8 +36,12 @@ class TranscribeComponent extends Component {
     }
   }
 
-  onLineSelected = (lineId) => {
-    this.context.showEditDialog(lineId);
+  onTextSelected = (lineId) => {
+    this.context.showEditDialog(lineId, 'text');
+  }
+
+  onSpeakerIdSelected = (lineId) => {
+    this.context.showEditDialog(lineId, 'id');
   }
 
   scrollToTop = () => {
@@ -40,11 +51,19 @@ class TranscribeComponent extends Component {
     this.refSpeakerLines.current.scrollTo(0, scroll);
   };
 
+  componentDidMount() {
+    this.setState((state) => state.lines = this.context.lines);
+  }
+
   componentWillUnmount() {
   }
 
   componentDidUpdate() {
-    this.scrollToTop();
+    if (this.context.lines.length !== this.state.lines.length) {
+      this.setState((state) => state.lines = this.context.lines);
+      if (!this.context.dialog.open)
+        this.scrollToTop();
+    }
   }
 
   // View
@@ -67,42 +86,52 @@ class TranscribeComponent extends Component {
                     {line.tag === 'brw' && (
                       <td 
                         className="Bubble Bubble-background SpeakerStatement"
-                        onClick={() => this.onLineSelected(line.id)}
                       >
                         <div
                           className="SpeakerId"
                           style={{ color: line.color }}
+                          onClick={() => this.onSpeakerIdSelected(line.id)}
                         >
                           {line?.speakerId}
                         </div>
-                        {line?.content
-                          ?.split('\n')
-                          ?.map((para, idx) =>
-                            para.length ? <p key={idx}>{para}</p> : <></>
-                          )}
-                        <div className="time">
-                          {new Date(line.timestamp).toLocaleTimeString()}
+                        <div 
+                          className='SpeakerText'
+                          onClick={() => this.onTextSelected(line.id)}
+                        >
+                          {line?.content
+                            ?.split('\n')
+                            ?.map((para, idx) =>
+                              para.length ? <p key={idx}>{para}</p> : <></>
+                            )}
+                          <div className="time">
+                            {new Date(line.timestamp).toLocaleTimeString()}
+                          </div>
                         </div>
                       </td>
                     )}
                     {line.tag === 'dsk' && (
                       <td 
                         className="Bubble Bubble-foreground SpeakerStatement"
-                        onClick={() => this.onLineSelected(line)}
                       >
                         <div
                           className="SpeakerId"
                           style={{ color: line.color }}
+                          onClick={() => this.onSpeakerIdSelected(line.id)}
                         >
                           {line?.speakerId}
                         </div>
-                        {line?.content
-                          ?.split('\n')
-                          ?.map((para, idx) =>
-                            para.length ? <p key={idx}>{para}</p> : <></>
-                          )}
-                        <div className="time">
-                          {new Date(line.timestamp).toLocaleTimeString()}
+                        <div 
+                          className='SpeakerText'
+                          onClick={() => this.onTextSelected(line.id)}
+                        >
+                          {line?.content
+                            ?.split('\n')
+                            ?.map((para, idx) =>
+                              para.length ? <p key={idx}>{para}</p> : <></>
+                            )}
+                          <div className="time">
+                            {new Date(line.timestamp).toLocaleTimeString()}
+                          </div>
                         </div>
                       </td>
                     )}
