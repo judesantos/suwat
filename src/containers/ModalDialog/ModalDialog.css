@@ -1,0 +1,54 @@
+
+.ModalWindow {
+  position: relative;
+  width: 85%;
+  padding: 3%;
+  top: 25%;
+  border-color: black;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.4s, slideIn 0.3s linear;
+}
+
+.ModalTitle {
+  font-weight:bolder;
+  font-size: 18px;
+  flex-direction: row;
+  padding: 2%;
+}
+
+.ModalMessage {
+  justify-content: flex-start;
+  display: inline-block;
+  flex-direction: row;
+  width: 100%;
+  padding: 2%;
+}
+
+.AlertMessage {
+  background-color: rgb(234, 173, 173);
+}
+
+.ModalAction {
+  align-self: flex-end;
+  flex-direction: row;
+  padding-top: 5%;
+}
+
+.AlertAction {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+Button {
+  font-weight: 600;
+}
+
+.AlertAction Button {
+  color: red;
+  font-weight: bolder;
+}
