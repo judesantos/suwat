@@ -1,121 +1,99 @@
-import { startRecording, stopRecording } from '../../services/transcribe-wsocket.js';
+import {
+  startRecording,
+  stopRecording,
+  TRANSCRIBE_STATUS
+} from '../../services/transcribe-wsocket.js';
 
 let portTunnel = undefined;
 
 const initTranscriptionMsgChannel = async () => {
-  
   if (portTunnel) {
-    
-    console.log('offscreen - disconnection previous transcription tunnel')
     disconnectTranscriptionMessageTunnel();
   }
 
-  console.log('offscreen - creating transcription tunnel')
-
-  portTunnel = chrome.runtime.connect({name: 'transcribe'});
-  portTunnel.onMessage.addListener(msg => {
-
-    if (msg.status === 'ready') {
-
-      console.log("Transcription message tunnel is ready.")
-
-    } else {
-
-      console.log({unhandled_request: msg})
+  portTunnel = chrome.runtime.connect({ name: 'transcribe' });
+  portTunnel.onMessage.addListener((msg) => {
+    if (msg.status !== 'ready') {
+      console.error({ unhandled_request: msg });
     }
   });
 
-  await portTunnel.postMessage({status: 'ready'});
-
-}
+  await portTunnel.postMessage({ status: 'ready' });
+};
 
 const disconnectTranscriptionMessageTunnel = () => {
   if (portTunnel) {
     // Send disconnect signal to other end - service-worker.
-    portTunnel.postMessage({status: 'disconnect'});
+    portTunnel.postMessage({ status: 'disconnect' });
     portTunnel.disconnect();
     portTunnel = undefined;
   }
-}
+};
 
 const sendTranscriptionData = async (data) => {
   if (portTunnel) {
-    portTunnel.postMessage({status: 'transcription', data});
+    portTunnel.postMessage({ status: 'transcription', data });
   }
-}
+};
 
 const record_start = async (streamId, sendResponse) => {
-  
-  if (startRecording(streamId, sendTranscriptionData)) {
-
+  const status = await startRecording(streamId, sendTranscriptionData)
+  if (status === TRANSCRIBE_STATUS.SUCCESS) {
     // Set offscreen to 'recording' mode
     window.location.hash = 'recording';
     // Setup tunnel to our service-worker to relay transcription data.
     await initTranscriptionMsgChannel();
-    sendResponse({status: 'recording'})
-
+    sendResponse({ status: 'recording' });
   } else {
-
-    sendResponse({status: 'error'})
+    if (
+      status === TRANSCRIBE_STATUS.FOREGROUND_INPUT_DEVICE_ERROR ||
+      status === TRANSCRIBE_STATUS.BACKGROUND_INPUT_DEVICE_ERROR
+    ) {
+      sendResponse({
+        status: 'error',
+        error: status,
+        message: 'Permission denied. Check browser permissions and enable microphone.'
+      });
+    } else {
+      sendResponse({
+        status: 'error',
+        error: status,
+        message: 'Recording failed!'
+      });
+    }
   }
-}
+};
 
 const record_stop = async (sendResponse) => {
-
-  if (stopRecording()) {
-
+  const status = stopRecording()
+  if (status === TRANSCRIBE_STATUS.SUCCESS) {
     window.location.hash = '';
-    sendResponse({status: 'stopped'})
-
+    sendResponse({ status: 'stopped' });
   } else {
-
-    sendResponse({status: 'error'})
+      sendResponse({
+        status: 'error',
+        error: status,
+        message: 'Stop recording failed!'
+      });
   }
 
   await disconnectTranscriptionMessageTunnel();
-}
+};
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-
   if (request.target === 'offscreen') {
-
-    console.log({offscreen: request})
-
     if (request.action === 'start-recording') {
-
-      console.log('record-start-action')
       record_start(request.streamId, sendResponse);
-
       return true;
-
     } else if (request.action === 'stop-recording') {
-
-      console.log('record-stop-action')
       record_stop(sendResponse);
-
       return true;
-
     } else if (request.action === 'logout') {
-
-      setTimeout(() => {
-        const msg = '\n\nYou have closed suwat.\n\nDiscard current job and Logout?\n\n';
-        if (window.confirm(msg)) {
-
-          record_stop(sendResponse);
-        }
-
-      }, 100);
-
+      record_stop(sendResponse);
+      chrome.storage?.local.remove('dialogue');
       return true;
-
     } else if (request.action === 'tab-exists') {
-
-      setTimeout(() => {
-        const msg = '\n\nMultiple sessions detected.\n\nClose the other session and try again.\n\n';
-        alert(msg);
-      }, 100);
-
-    } 
-  } 
-
+      window.alert('\nSuwat is open in another tab\nClose Suwat in the other tab\n\nTry Again\n\n')
+    }
+  }
 });

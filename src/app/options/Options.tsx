@@ -5,8 +5,8 @@ interface Props {
   title: string;
 }
 
-function Options({title}: Props) {
+function Options({ title }: Props) {
   return <div className="OptionsContainer">{title} Page</div>;
-};
+}
 
 export default Options;

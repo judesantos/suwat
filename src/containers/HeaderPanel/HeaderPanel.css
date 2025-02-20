@@ -1,22 +1,38 @@
 @-webkit-keyframes fadeIn {
-  from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes fadeIn {
-  from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .HeaderPanel {
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  justify-content: space-evenly;
   /*
   height: 5%;
   padding: 3%;
   */
   background-color: 1px solid rgb(188, 178, 178);
+  /*
   text-align: right;
   position: relative;
   display: inline-block;
+  */
   width: 100%;
+  padding: 7px;
+  border-top: 1px solid rgb(212, 201, 201);
 }
 
 .Button {
@@ -25,15 +41,18 @@
   cursor: pointer;
 }
 
-.ButtonRecord, .Button {
+.ButtonRecord,
+.Button {
   width: 25%;
   height: 60%;
   margin: 1% 0.5%;
 }
 
 .MenuDropDown {
+  /*
   position: relative;
   display: inline-block;
+  */
 }
 
 .MenuDropDown .PopupMenu {
@@ -42,12 +61,15 @@
   animation: fadeIn 0.5s;
 }
 
-.ButtonDropDown, .Button {
+.ButtonDropDown,
+.Button {
+  /*
   align-items: center;
+  */
   margin: 1%;
 }
 
-  /*
+/*
 .ButtonMenu:hover, .ButtonMenu:focus {
   background-color: #b4d4ea;
 }

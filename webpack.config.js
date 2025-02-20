@@ -1,10 +1,10 @@
 const webpack = require('webpack'),
-      path = require('path'),
-      fileSystem = require('fs-extra'),
-      env = require('./scripts/env'),
-      CopyWebpackPlugin = require('copy-webpack-plugin'),
-      HtmlWebpackPlugin = require('html-webpack-plugin'),
-      TerserPlugin = require('terser-webpack-plugin');
+  path = require('path'),
+  fileSystem = require('fs-extra'),
+  env = require('./scripts/env'),
+  CopyWebpackPlugin = require('copy-webpack-plugin'),
+  HtmlWebpackPlugin = require('html-webpack-plugin'),
+  TerserPlugin = require('terser-webpack-plugin');
 
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
@@ -12,7 +12,7 @@ const ReactRefreshTypeScript = require('react-refresh-typescript');
 
 let alias = {
   // webpack5 requires explicitly import module dependencies
-  process: 'process/browser'
+  process: 'process/browser',
 };
 
 const ASSET_PATH = process.env.ASSET_PATH || '/';
@@ -41,7 +41,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 var options = {
   mode: process.env.NODE_ENV || 'development',
   experiments: {
-    topLevelAwait: true
+    topLevelAwait: true,
   },
   entry: {
     options: path.join(__dirname, 'src', 'app', 'options', 'index.jsx'),
@@ -53,12 +53,7 @@ var options = {
     offscreen: path.join(__dirname, 'src', 'app', 'offscreen', 'index.js'),
   },
   chromeExtensionBoilerplate: {
-    notHotReload: [
-      'background',
-      'devtools',
-      'offscreen',
-      'sidepanel'
-    ],
+    notHotReload: ['background', 'devtools', 'offscreen', 'sidepanel'],
   },
   output: {
     filename: '[name].bundle.js',
@@ -138,8 +133,8 @@ var options = {
     extensions: fileExtensions
       .map((extension) => '.' + extension)
       .concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
-    fallback: { 
-      path: require.resolve("path-browserify")
+    fallback: {
+      path: require.resolve('path-browserify'),
     },
   },
   plugins: [
@@ -196,7 +191,7 @@ var options = {
     }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: "src/app/offscreen/index.html", to: "offscreen.html" },
+        { from: 'src/app/offscreen/index.html', to: 'offscreen.html' },
       ],
     }),
     new HtmlWebpackPlugin({
@@ -232,14 +227,14 @@ var options = {
     new webpack.ProvidePlugin({
       process: 'process/browser',
       Buffer: ['buffer', 'Buffer'],
-  }),
+    }),
   ].filter(Boolean),
   infrastructureLogging: {
     level: 'info',
   },
 };
 
-if (env.NODE_ENV === 'development') {
+if (isDevelopment) {
   options.devtool = 'cheap-module-source-map';
 } else {
   options.optimization = {

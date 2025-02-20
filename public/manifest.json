@@ -1,20 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "suwat - by yourtechy.com",
+  "name": "Suwat - by yourtechy.com",
   "description": "suwat - The speech transcriber by yourtechy.com",
   "key": "-----BEGINPUBLICKEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgyKPVbpMWU8rV/pBT9Y7f9gWojAlBUpFt3tiJvAE11iR8wu8OBCA0QkghxphgIjrXs6OxL7Xx4G3KCzktlnyaIYONbzb36AuBvOtCSChvc+DrSJpZ0wljThoZwHIYWMPp6thwIoHp7OjqnXT9zg9RNKLK40zv0C3PwMy0nPUJZ4Le6UE0DfPOlq8zULSzlVWLai1v2MyuuVaSbwGr42QXiJVjZ/qiMq2tBVr1nrLJOYWdlr2vkOFw+RD1JW/WZISygXe09Jy5UXeTDSL2Zf7Ro/FmYDprFmtyHvyI+hBOwkay4TiPVjAeKS3ml6f+B/Pi5VFEvlf546G+rlQT2QYIwIDAQAB-----ENDPUBLICKEY-----",
-  "oauth2":{
-    "client_id":"466910947435-k8868vvhpktebb3v008p4ue9kg7ubqg3.apps.googleusercontent.com",
-    "project_id":"digital-seat-130823",
-    "auth_uri":"https://accounts.google.com/o/oauth2/auth",
-    "token_uri":"https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+  "oauth2": {
+    "client_id": "466910947435-k8868vvhpktebb3v008p4ue9kg7ubqg3.apps.googleusercontent.com",
+    "project_id": "digital-seat-130823",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "scopes": ["https://www.googleapis.com/auth/userinfo.email"]
   },
   "icons": {
     "128": "icon-34.png"
   },
   "permissions": [
+    "cookies",
+    "webNavigation",
     "storage",
     "unlimitedStorage",
     "contextMenus",
@@ -23,21 +25,31 @@
     "activeTab",
     "tabCapture",
     "offscreen",
-    "identity"
+    "identity",
+    "notifications"
   ],
-  "action": {
-    "default_title": "suwat",
-    "default_icon": "icon-34.png"
-},
+  "host_permissions": [
+    "*://*/*"
+  ],
   "web_accessible_resources": [
     {
-      "resources": ["content.styles.css", "icon-128.png", "icon-34.png"],
+      "resources": [
+        "styles.css",
+        "icon-128.png", 
+        "icon-34.png", 
+        "*.html"
+      ],
       "matches": []
     }
   ],
-  "devtools_page": "devtools.html",
-  "options_page": "options.html",
+  "action": {
+    "default_panel": "sidepanel.html",
+    "default_title": "suwat",
+    "default_icon": "icon-34.png"
+  },
   "background": {
     "service_worker": "background.bundle.js"
-  }
+  },
+  "devtools_page": "devtools.html",
+  "options_page": "options.html"
 }
