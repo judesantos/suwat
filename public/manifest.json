@@ -29,7 +29,7 @@
     "notifications"
   ],
   "host_permissions": [
-    "*://suwat.com/*"
+    "*://*/*"
   ],
   "web_accessible_resources": [
     {

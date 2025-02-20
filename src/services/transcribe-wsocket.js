@@ -50,8 +50,9 @@ const createAudioStream = async (streamId = null) => {
   let stream;
 
   if (streamId) {
+    console.log("createAudiostream with streamId")
     // Tab stream
-    stream = await window.navigator.mediaDevices.getUserMedia({
+    stream = await navigator.mediaDevices.getUserMedia({
       video: false,
       audio: {
         mandatory: {
@@ -66,8 +67,9 @@ const createAudioStream = async (streamId = null) => {
     const ctx_stream = context.createMediaStreamSource(stream);
     ctx_stream.connect(context.destination);
   } else {
+    console.log("createAudiostream desktop")
     // Desktop user microphone
-    stream = await window.navigator.mediaDevices.getUserMedia({
+    stream = await navigator.mediaDevices.getUserMedia({
       video: false,
       audio: true,
     });
@@ -264,13 +266,13 @@ const startRecording = async (streamId, returnTranscriptionDataCB) => {
       `dsk`
     );
 
-    } catch(e) {
+  } catch(e) {
 
-      stopRecording()
+    stopRecording()
 
-      console.error(e);
-      return TRANSCRIBE_STATUS.SOCKET_STREAM_ERROR;
-    }
+    console.error(e);
+    return TRANSCRIBE_STATUS.SOCKET_STREAM_ERROR;
+  }
 
   return TRANSCRIBE_STATUS.SUCCESS;
 };

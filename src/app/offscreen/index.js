@@ -46,8 +46,8 @@ const record_start = async (streamId, sendResponse) => {
     sendResponse({ status: 'recording' });
   } else {
     if (
-      TRANSCRIBE_STATUS.FOREGROUND_INPUT_DEVICE_ERROR ||
-      TRANSCRIBE_STATUS.BACKGROUND_INPUT_DEVICE_ERROR
+      status === TRANSCRIBE_STATUS.FOREGROUND_INPUT_DEVICE_ERROR ||
+      status === TRANSCRIBE_STATUS.BACKGROUND_INPUT_DEVICE_ERROR
     ) {
       sendResponse({
         status: 'error',
